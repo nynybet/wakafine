@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple QR Debug</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .test-box {
+            border: 2px solid #333;
+            padding: 20px;
+            margin: 20px 0;
+            background: white;
+        }
+        
+        .qr-container {
+            width: 150px;
+            height: 150px;
+            border: 2px solid #000;
+            margin: 20px auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: white;
+        }
+        
+        .log {
+            background: #000;
+            color: #0f0;
+            padding: 10px;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        button {
+            background: #007cba;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            cursor: pointer;
+            margin: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>QR Code Debug Tool</h1>
+    
+    <div class="test-box">
+        <h3>Library Status</h3>
+        <div id="library-status">Checking...</div>
+    </div>
+    
+    <div class="test-box">
+        <h3>Simple QR Test</h3>
+        <div id="simple-qr" class="qr-container">Loading...</div>
+        <div id="simple-status">Testing...</div>
+    </div>
+    
+    <div class="test-box">
+        <h3>Complex QR Test (Like Print Template)</h3>
+        <div id="complex-qr" class="qr-container">Loading...</div>
+        <div id="complex-status">Testing...</div>
+    </div>
+    
+    <div class="test-box">
+        <h3>Debug Log</h3>
+        <div id="log" class="log"></div>
+    </div>
+    
+    <div>
+        <button onclick="runTests()">Run Tests</button>
+        <button onclick="clearLog()">Clear Log</button>
+        <button onclick="window.print()">Test Print</button>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+    <script>
+        let logElement = document.getElementById('log');
+        
+        function log(message) {
+            console.log(message);
+            logElement.innerHTML += message + '<br>';
+            logElement.scrollTop = logElement.scrollHeight;
+        }
+        
+        function clearLog() {
+            logElement.innerHTML = '';
+        }
+        
+        function checkLibrary() {
+            log('🔍 Checking QR library...');
+            
+            if (typeof QRCode === 'undefined') {
+                document.getElementById('library-status').innerHTML = '❌ QRCode library NOT loaded';
+                log('❌ QRCode library not available');
+                return false;
+            } else {
+                document.getElementById('library-status').innerHTML = '✅ QRCode library loaded successfully';
+                log('✅ QRCode library available');
+                return true;
+            }
+        }
+        
+        function testSimpleQR() {
+            log('🧪 Testing simple QR...');
+            
+            if (!checkLibrary()) return;
+            
+            try {
+                const container = document.getElementById('simple-qr');
+                
+                QRCode.toCanvas('Hello World!', {
+                    width: 120,
+                    height: 120
+                }, function (error, canvas) {
+                    if (error) {
+                        log('❌ Simple QR failed: ' + error);
+                        document.getElementById('simple-status').innerHTML = '❌ Failed: ' + error;
+                    } else {
+                        log('✅ Simple QR generated');
+                        container.innerHTML = '';
+                        container.appendChild(canvas);
+                        document.getElementById('simple-status').innerHTML = '✅ Simple QR successful';
+                    }
+                });
+            } catch (e) {
+                log('❌ Simple QR exception: ' + e);
+                document.getElementById('simple-status').innerHTML = '❌ Exception: ' + e;
+            }
+        }
+        
+        function testComplexQR() {
+            log('🔬 Testing complex QR (like print template)...');
+            
+            if (!checkLibrary()) return;
+            
+            try {
+                const container = document.getElementById('complex-qr');
+                const complexData = `WAKA-FINE BUS TICKET
+PNR: TESTCODE123
+Passenger: Test User
+Route: Origin to Destination
+Date: Dec 30, 2024 at 08:00
+Bus: Test Bus
+Seat: A12
+Amount: Le 150000`;
+                
+                log('📄 QR data length: ' + complexData.length);
+                
+                QRCode.toCanvas(complexData, {
+                    width: 130,
+                    height: 130,
+                    margin: 0,
+                    color: {
+                        dark: '#000000',
+                        light: '#ffffff'
+                    },
+                    errorCorrectionLevel: 'H'
+                }, function (error, canvas) {
+                    if (error) {
+                        log('❌ Complex QR failed: ' + error);
+                        document.getElementById('complex-status').innerHTML = '❌ Failed: ' + error;
+                    } else {
+                        log('✅ Complex QR generated');
+                        
+                        // Apply print template styling
+                        canvas.style.display = 'block';
+                        canvas.style.margin = '0 auto';
+                        canvas.style.borderRadius = '4px';
+                        canvas.style.border = '3px solid #000';
+                        canvas.style.background = 'white';
+                        canvas.style.webkitPrintColorAdjust = 'exact';
+                        canvas.style.printColorAdjust = 'exact';
+                        canvas.style.width = '110px';
+                        canvas.style.height = '110px';
+                        
+                        container.innerHTML = '';
+                        container.appendChild(canvas);
+                        document.getElementById('complex-status').innerHTML = '✅ Complex QR successful';
+                        
+                        log('🎨 Applied print template styling');
+                    }
+                });
+            } catch (e) {
+                log('❌ Complex QR exception: ' + e);
+                document.getElementById('complex-status').innerHTML = '❌ Exception: ' + e;
+            }
+        }
+        
+        function runTests() {
+            log('🚀 Starting QR diagnostic tests...');
+            clearLog();
+            
+            setTimeout(checkLibrary, 100);
+            setTimeout(testSimpleQR, 500);
+            setTimeout(testComplexQR, 1000);
+        }
+        
+        // Auto-run when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            log('📱 QR Debug Tool loaded');
+            setTimeout(runTests, 500);
+        });
+    </script>
+</body>
+</html>

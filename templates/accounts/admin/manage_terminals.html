@@ -1,0 +1,222 @@
+{% extends 'accounts/admin/base_admin.html' %}
+
+{% block page_title %}Manage Terminals{% endblock %}
+
+{% block content %}
+<div class="bg-white rounded-xl shadow-sm border border-gray-200">
+    <div class="px-6 py-4 border-b border-gray-200">        <div class="flex items-center justify-between">
+            <h3 class="text-lg font-semibold text-gray-900">Terminal Management</h3>
+            <a href="{% url 'terminals:create' %}" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                <i class="fas fa-plus mr-2"></i>Add New Terminal
+            </a>
+        </div>
+    </div>
+    
+    <!-- Search and Filter Section -->
+    <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
+        <form method="GET" class="flex items-center gap-4">
+            <div class="flex-1">
+                <input type="text" name="search" value="{{ search }}" 
+                       placeholder="Search terminals by name, location, or city..." 
+                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+            </div>
+            <div>
+                <select name="type" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    <option value="">All Types</option>
+                    {% for value, label in terminal_types %}
+                        <option value="{{ value }}" {% if type_filter == value %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <button type="submit" class="px-6 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors">
+                <i class="fas fa-search mr-2"></i>Filter
+            </button>
+            {% if search or type_filter %}
+                <a href="{% url 'accounts:admin_manage_terminals' %}" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors">
+                    <i class="fas fa-times mr-2"></i>Clear
+                </a>
+            {% endif %}
+        </form>
+    </div>
+    
+    {% if terminals %}
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead class="bg-gray-50">                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Terminal</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Location</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Operating Hours</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for terminal in terminals %}
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center">
+                                    <div class="p-2 bg-green-100 rounded-lg mr-3">
+                                        {% if terminal.terminal_type == 'main_terminal' %}
+                                            <i class="fas fa-building text-green-600"></i>
+                                        {% elif terminal.terminal_type == 'bus_stop' %}
+                                            <i class="fas fa-map-marker-alt text-green-600"></i>
+                                        {% elif terminal.terminal_type == 'interchange' %}
+                                            <i class="fas fa-exchange-alt text-green-600"></i>
+                                        {% else %}
+                                            <i class="fas fa-warehouse text-green-600"></i>
+                                        {% endif %}
+                                    </div>
+                                    <div>
+                                        <div class="text-sm font-medium text-gray-900">{{ terminal.name }}</div>
+                                        <div class="text-sm text-gray-500">{{ terminal.get_terminal_type_display }}</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                                    {% if terminal.terminal_type == 'main_terminal' %}bg-blue-100 text-blue-800
+                                    {% elif terminal.terminal_type == 'bus_stop' %}bg-yellow-100 text-yellow-800
+                                    {% elif terminal.terminal_type == 'interchange' %}bg-purple-100 text-purple-800
+                                    {% else %}bg-gray-100 text-gray-800{% endif %}">
+                                    {{ terminal.get_terminal_type_display }}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-900">{{ terminal.location }}</div>
+                                <div class="text-sm text-gray-500">{{ terminal.get_city_display }}</div>
+                            </td>                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-900">{{ terminal.operating_hours }}</div>
+                                {% if terminal.contact_number %}
+                                    <div class="text-sm text-gray-500">{{ terminal.contact_number }}</div>
+                                {% endif %}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                {% if terminal.is_active %}
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                        <span class="w-1.5 h-1.5 bg-green-400 rounded-full mr-1.5"></span>
+                                        Active
+                                    </span>
+                                {% else %}
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                        <span class="w-1.5 h-1.5 bg-red-400 rounded-full mr-1.5"></span>
+                                        Inactive
+                                    </span>
+                                {% endif %}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                {{ terminal.created_at|date:"M d, Y" }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                <div class="flex items-center space-x-2">
+                                    <a href="{% url 'terminals:detail' terminal.pk %}" class="text-blue-600 hover:text-blue-900">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a href="{% url 'terminals:update' terminal.pk %}" class="text-indigo-600 hover:text-indigo-900">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <button onclick="toggleTerminalStatus({{ terminal.id }}, {{ terminal.is_active|yesno:'true,false' }})" 
+                                            class="{% if terminal.is_active %}text-red-600 hover:text-red-900{% else %}text-green-600 hover:text-green-900{% endif %}">
+                                        {% if terminal.is_active %}
+                                            <i class="fas fa-ban"></i>
+                                        {% else %}
+                                            <i class="fas fa-check"></i>
+                                        {% endif %}
+                                    </button>
+                                    <a href="{% url 'accounts:admin_delete_terminal' terminal.pk %}" class="text-red-600 hover:text-red-900"
+                                       onclick="return confirm('Are you sure you want to delete this terminal?')">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Pagination -->
+        {% if is_paginated %}
+            <div class="px-6 py-4 border-t border-gray-200">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center text-sm text-gray-700">
+                        <span>Showing {{ page_obj.start_index }} to {{ page_obj.end_index }} of {{ page_obj.paginator.count }} terminals</span>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        {% if page_obj.has_previous %}
+                            <a href="?page={{ page_obj.previous_page_number }}{% if search %}&search={{ search }}{% endif %}{% if type_filter %}&type={{ type_filter }}{% endif %}" 
+                               class="px-3 py-2 bg-white border border-gray-300 rounded-md text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                Previous
+                            </a>
+                        {% endif %}
+                        
+                        <span class="text-sm text-gray-700">
+                            Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+                        </span>
+                        
+                        {% if page_obj.has_next %}
+                            <a href="?page={{ page_obj.next_page_number }}{% if search %}&search={{ search }}{% endif %}{% if type_filter %}&type={{ type_filter }}{% endif %}" 
+                               class="px-3 py-2 bg-white border border-gray-300 rounded-md text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                Next
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    {% else %}
+        <div class="text-center py-12">
+            <div class="text-gray-500 text-lg mb-4">
+                <i class="fas fa-building fa-3x mb-4"></i>
+                <p>No terminals found</p>
+            </div>
+            {% if search or type_filter %}
+                <p class="text-gray-600 mb-4">Try adjusting your search criteria.</p>
+                <a href="{% url 'accounts:admin_manage_terminals' %}" class="text-blue-600 hover:text-blue-800">Clear filters</a>
+            {% else %}
+                <a href="{% url 'terminals:create' %}" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                    <i class="fas fa-plus mr-2"></i>Add First Terminal
+                </a>
+            {% endif %}
+        </div>
+    {% endif %}
+</div>
+
+<script>
+function toggleTerminalStatus(terminalId, currentStatus) {
+    fetch(`/accounts/admin/terminals/${terminalId}/toggle-status/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken'),
+            'X-Requested-With': 'XMLHttpRequest',
+        },
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            location.reload();
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while updating the terminal status.');
+    });
+}
+
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+</script>
+{% endblock %}

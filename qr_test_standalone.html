@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Code Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .test-container {
+            border: 2px solid #333;
+            padding: 20px;
+            margin: 20px 0;
+            background: white;
+        }
+        
+        #qr-code {
+            min-height: 150px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: white;
+            border: 2px solid #000;
+            border-radius: 8px;
+            padding: 10px;
+            margin: 20px auto;
+        }
+        
+        .qr-fallback {
+            width: 130px;
+            height: 130px;
+            border: 3px solid #000;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: white;
+            color: #000;
+            margin: 0 auto;
+        }
+        
+        @media print {
+            * {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+                color-adjust: exact !important;
+            }
+            
+            body * {
+                visibility: hidden;
+            }
+            
+            .test-container, .test-container * {
+                visibility: visible !important;
+            }
+            
+            .test-container {
+                position: absolute;
+                top: 10px;
+                left: 10px;
+                right: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>QR Code Functionality Test</h1>
+    
+    <div class="test-container">
+        <h2>Test QR Code Generation</h2>
+        <p><strong>Sample Booking:</strong> BZYKEQ9M</p>
+        <p><strong>Route:</strong> Freetown → Bo</p>
+        <p><strong>Date:</strong> December 30, 2024</p>
+        
+        <div id="qr-code"></div>
+        
+        <p style="text-align: center; margin-top: 20px;">
+            <button onclick="window.print()">🖨️ Test Print</button>
+            <button onclick="regenerateQR()">🔄 Regenerate QR</button>
+        </p>
+        
+        <div id="log" style="margin-top: 20px; font-family: monospace; font-size: 12px; background: #f5f5f5; padding: 10px; max-height: 200px; overflow-y: auto;"></div>
+    </div>
+
+    <!-- QR Code Library -->
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+    <script>
+        let logElement = document.getElementById('log');
+        
+        function log(message) {
+            console.log(message);
+            logElement.innerHTML += message + '<br>';
+            logElement.scrollTop = logElement.scrollHeight;
+        }
+        
+        function showFallback(reason = 'Unknown') {
+            log(`⚠️ Using fallback QR display. Reason: ${reason}`);
+            const qrContainer = document.getElementById('qr-code');
+            qrContainer.innerHTML = `
+                <div class="qr-fallback">
+                    <div style="text-align: center;">
+                        <div style="font-size: 16px; font-weight: bold; margin-bottom: 8px;">📱 QR CODE</div>
+                        <div style="font-size: 14px; font-family: monospace; font-weight: bold;">BZYKEQ9M</div>
+                        <div style="font-size: 12px; margin-top: 8px;">SCAN TO VERIFY</div>
+                    </div>
+                </div>`;
+        }
+        
+        function generateQR() {
+            log('🚀 Starting QR Code generation...');
+            
+            const qrData = `WAKA-FINE BUS TICKET
+PNR: BZYKEQ9M
+Passenger: Test User
+Route: Freetown to Bo
+Date: Dec 30, 2024 at 08:00
+Bus: Express Bus (BUS001)
+Seat: A12
+Amount: Le 150000`;
+            
+            log('📄 QR Data prepared');
+            
+            const qrContainer = document.getElementById('qr-code');
+            if (!qrContainer) {
+                log('❌ QR container not found');
+                return;
+            }
+            
+            log('✅ QR container found');
+            
+            if (typeof QRCode === 'undefined') {
+                log('❌ QRCode library not available');
+                showFallback('Library not loaded');
+                return;
+            }
+            
+            log('✅ QRCode library is available');
+            
+            try {
+                QRCode.toCanvas(qrData, {
+                    width: 150,
+                    height: 150,
+                    margin: 0,
+                    color: {
+                        dark: '#000000',
+                        light: '#ffffff'
+                    },
+                    errorCorrectionLevel: 'H'
+                }, function (error, canvas) {
+                    if (error) {
+                        log('❌ QR generation failed: ' + error.message);
+                        showFallback('QR generation error');
+                    } else {
+                        log('✅ QR Code generated successfully!');
+                        
+                        // Style the canvas
+                        canvas.style.display = 'block';
+                        canvas.style.margin = '0 auto';
+                        canvas.style.borderRadius = '4px';
+                        canvas.style.border = '3px solid #000';
+                        canvas.style.background = 'white';
+                        canvas.style.webkitPrintColorAdjust = 'exact';
+                        canvas.style.printColorAdjust = 'exact';
+                        canvas.style.colorAdjust = 'exact';
+                        
+                        // Clear container and add QR code
+                        qrContainer.innerHTML = '';
+                        qrContainer.appendChild(canvas);
+                        
+                        log('🎯 QR Code added to DOM');
+                    }
+                });
+            } catch (e) {
+                log('❌ QR generation exception: ' + e.message);
+                showFallback('QR generation exception');
+            }
+        }
+        
+        function regenerateQR() {
+            const qrContainer = document.getElementById('qr-code');
+            qrContainer.innerHTML = '';
+            logElement.innerHTML = '';
+            generateQR();
+        }
+        
+        // Initialize when DOM is ready
+        document.addEventListener('DOMContentLoaded', generateQR);
+    </script>
+</body>
+</html>

@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Waka-Fine Bus{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#1e40af',
+                        secondary: '#3b82f6',
+                        accent: '#fbbf24',
+                        success: '#10b981',
+                        warning: '#f59e0b',
+                        danger: '#ef4444',
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.5s ease-in-out',
+                        'slide-up': 'slideUp 0.3s ease-out',
+                        'bounce-in': 'bounceIn 0.6s ease-out',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        @keyframes bounceIn {
+            0%, 20%, 40%, 60%, 80% { transform: translateY(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateY(-10px); }
+        }
+        .glass-effect {
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.1);
+        }
+    </style>
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
+    <!-- Navigation -->
+    <nav class="bg-white/80 backdrop-blur-md shadow-lg sticky top-0 z-50 border-b border-blue-100">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 flex items-center">
+                        <i class="fas fa-bus text-3xl text-primary mr-2"></i>
+                        <span class="text-2xl font-bold text-gray-800">Waka-Fine</span>
+                        <span class="text-sm text-gray-500 ml-2">Bus</span>
+                    </div>
+                    <div class="hidden md:ml-10 md:flex md:space-x-8">
+                        <a href="{% url 'home' %}" class="text-gray-700 hover:text-primary px-3 py-2 text-sm font-medium transition-colors duration-200">
+                            <i class="fas fa-home mr-1"></i>Home
+                        </a>
+                        <a href="{% url 'routes:search' %}" class="text-gray-700 hover:text-primary px-3 py-2 text-sm font-medium transition-colors duration-200">
+                            <i class="fas fa-route mr-1"></i>Routes
+                        </a>
+                        {% if user.is_authenticated %}
+                            <a href="{% url 'bookings:list' %}" class="text-gray-700 hover:text-primary px-3 py-2 text-sm font-medium transition-colors duration-200">
+                                <i class="fas fa-ticket-alt mr-1"></i>My Bookings
+                            </a>
+                            <a href="{% url 'accounts:dashboard' %}" class="text-gray-700 hover:text-primary px-3 py-2 text-sm font-medium transition-colors duration-200">
+                                <i class="fas fa-tachometer-alt mr-1"></i>Dashboard
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="flex items-center space-x-4">
+                    {% if user.is_authenticated %}
+                        <div class="relative" x-data="{ open: false }">
+                            <button @click="open = !open" class="flex items-center text-sm text-gray-700 hover:text-primary focus:outline-none transition-colors duration-200">
+                                <i class="fas fa-user-circle text-xl mr-2"></i>
+                                <span class="hidden md:block">{{ user.get_full_name|default:user.username }}</span>
+                                <i class="fas fa-chevron-down ml-1 text-xs"></i>
+                            </button>
+                            <div x-show="open" @click.away="open = false" 
+                                 x-transition:enter="transition ease-out duration-100"
+                                 x-transition:enter-start="transform opacity-0 scale-95"
+                                 x-transition:enter-end="transform opacity-100 scale-100"
+                                 x-transition:leave="transition ease-in duration-75"
+                                 x-transition:leave-start="transform opacity-100 scale-100"
+                                 x-transition:leave-end="transform opacity-0 scale-95"
+                                 class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
+                                <a href="{% url 'accounts:profile' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                    <i class="fas fa-user mr-2"></i>Profile
+                                </a>
+                                <hr class="my-1">
+                                <form method="post" action="{% url 'accounts:logout' %}" class="block">
+                                    {% csrf_token %}
+                                    <button type="submit" class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                        <i class="fas fa-sign-out-alt mr-2"></i>Logout
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    {% else %}
+                        <a href="{% url 'accounts:login' %}" class="text-gray-700 hover:text-primary px-3 py-2 text-sm font-medium transition-colors duration-200">
+                            <i class="fas fa-sign-in-alt mr-1"></i>Login
+                        </a>
+                        <a href="{% url 'accounts:register' %}" class="bg-primary text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors duration-200">
+                            <i class="fas fa-user-plus mr-1"></i>Register
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Messages -->
+    {% if messages %}
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4">
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} animate-slide-up mb-4 p-4 rounded-lg border-l-4 {% if message.tags == 'success' %}bg-green-50 border-green-400 text-green-700{% elif message.tags == 'error' %}bg-red-50 border-red-400 text-red-700{% elif message.tags == 'warning' %}bg-yellow-50 border-yellow-400 text-yellow-700{% else %}bg-blue-50 border-blue-400 text-blue-700{% endif %}" x-data="{ show: true }" x-show="show" x-transition>
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center">
+                            <i class="{% if message.tags == 'success' %}fas fa-check-circle{% elif message.tags == 'error' %}fas fa-exclamation-circle{% elif message.tags == 'warning' %}fas fa-exclamation-triangle{% else %}fas fa-info-circle{% endif %} mr-2"></i>
+                            {{ message }}
+                        </div>
+                        <button @click="show = false" class="text-sm hover:opacity-75">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <!-- Main Content -->
+    <main class="min-h-screen">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white mt-20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div class="col-span-1 md:col-span-2">
+                    <div class="flex items-center mb-4">
+                        <i class="fas fa-bus text-2xl text-accent mr-2"></i>
+                        <span class="text-xl font-bold">Waka-Fine Bus</span>
+                    </div>
+                    <p class="text-gray-300 mb-4">Your trusted partner for comfortable and safe travel across Freetown, Sierra Leone.</p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-gray-300 hover:text-accent transition-colors duration-200">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                        <a href="#" class="text-gray-300 hover:text-accent transition-colors duration-200">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                        <a href="#" class="text-gray-300 hover:text-accent transition-colors duration-200">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                    </div>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Quick Links</h3>
+                    <ul class="space-y-2">
+                        <li><a href="{% url 'routes:search' %}" class="text-gray-300 hover:text-accent transition-colors duration-200">Book a Trip</a></li>
+                        <li><a href="{% url 'bookings:search' %}" class="text-gray-300 hover:text-accent transition-colors duration-200">Track Booking</a></li>
+                        <li><a href="#" class="text-gray-300 hover:text-accent transition-colors duration-200">Contact Us</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Contact Info</h3>
+                    <div class="space-y-2 text-gray-300">
+                        <p><i class="fas fa-map-marker-alt mr-2"></i>Freetown, Sierra Leone</p>
+                        <p><i class="fas fa-phone mr-2"></i>+232 785 45477</p>
+                        <p><i class="fas fa-envelope mr-2"></i>info@wakafine.sl</p>
+                    </div>
+                </div>
+            </div>
+            <hr class="border-gray-700 my-8">
+            <div class="text-center text-gray-300">
+                <p>&copy; 2025 Waka-Fine Bus. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

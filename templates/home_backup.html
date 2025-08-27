@@ -1,0 +1,224 @@
+﻿{% extends 'base.html' %}
+
+{% block title %}Welcome to Waka-Fine Bus{% endblock %}
+
+{% block extra_css %}
+<style>
+    .hero-section {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 70vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .hero-content {
+        text-align: center;
+        color: white;
+        z-index: 10;
+        position: relative;
+    }
+    
+    .hero-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 20"><defs><pattern id="a" patternUnits="userSpaceOnUse" width="20" height="20" patternTransform="scale(2) rotate(0)"><rect x="0" y="0" width="100%" height="100%" fill="none"/><path d="M 10,-2.55e-7 V 20 Z" stroke-width="0.5" stroke="rgba(255,255,255,0.1)" fill="none"/></pattern></defs><rect width="100%" height="100%" fill="url(%23a)"/></svg>') repeat;
+        opacity: 0.3;
+    }
+    
+    .btn-primary {
+        background: rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(10px);
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        color: white;
+        padding: 1rem 2rem;
+        border-radius: 50px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-primary:hover {
+        background: rgba(255, 255, 255, 0.3);
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    }
+    
+    .btn-secondary {
+        background: white;
+        color: #667eea;
+        padding: 1rem 2rem;
+        border-radius: 50px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        border: none;
+    }
+    
+    .btn-secondary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    }
+    
+    .feature-card {
+        background: white;
+        border-radius: 15px;
+        padding: 2rem;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+        text-align: center;
+    }
+    
+    .feature-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+    }
+    
+    .feature-icon {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        display: block;
+    }
+    
+    .floating-bus {
+        position: absolute;
+        bottom: 2rem;
+        right: 2rem;
+        font-size: 4rem;
+        opacity: 0.2;
+        animation: float 6s ease-in-out infinite;
+    }
+    
+    @keyframes float {
+        0%, 100% { transform: translateY(0px); }
+        50% { transform: translateY(-20px); }
+    }
+    
+    .fade-in {
+        animation: fadeIn 1s ease-out;
+    }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(30px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="container mx-auto px-4">
+        <div class="hero-content fade-in">
+            <div class="text-6xl mb-6">ðŸšŒ</div>
+            <h1 class="text-5xl md:text-7xl font-bold mb-6">
+                Waka-Fine Bus
+            </h1>
+            <p class="text-xl md:text-2xl mb-8 max-w-2xl mx-auto opacity-90">
+                Your comfortable and reliable travel partner across Freetown, Sierra Leone
+            </p>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                {% if user.is_authenticated %}
+                    <a href="{% url 'bookings:search_routes' %}" class="btn-secondary">
+                        ðŸŽ« Book Your Trip
+                    </a>
+                    {% if user.user_type == 'ADMIN' %}
+                        <a href="{% url 'accounts:admin_dashboard' %}" class="btn-primary">
+                            ðŸ“Š Admin Dashboard
+                        </a>
+                    {% elif user.user_type == 'STAFF' %}
+                        <a href="{% url 'accounts:staff_dashboard' %}" class="btn-primary">
+                            ðŸŽ¯ Staff Dashboard
+                        </a>
+                    {% else %}
+                        <a href="{% url 'accounts:customer_dashboard' %}" class="btn-primary">
+                            ðŸ‘¤ My Dashboard
+                        </a>
+                    {% endif %}
+                {% else %}
+                    <a href="{% url 'accounts:register' %}" class="btn-secondary">
+                        ðŸš€ Get Started
+                    </a>
+                    <a href="{% url 'accounts:login' %}" class="btn-primary">
+                        ðŸ”‘ Sign In
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+        <div class="floating-bus">ðŸšŒ</div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="py-16 bg-gray-50">
+    <div class="container mx-auto px-4">
+        <div class="text-center mb-12">
+            <h2 class="text-4xl font-bold text-gray-800 mb-4">Why Choose Waka-Fine?</h2>
+            <p class="text-gray-600 text-lg">Experience the best bus travel service in Freetown</p>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div class="feature-card">
+                <div class="feature-icon">ðŸŽ«</div>
+                <h3 class="text-xl font-semibold text-gray-800 mb-3">Easy Booking</h3>
+                <p class="text-gray-600">Book your tickets online with just a few clicks. No more waiting in long queues!</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">ðŸšŒ</div>
+                <h3 class="text-xl font-semibold text-gray-800 mb-3">Comfortable Buses</h3>
+                <p class="text-gray-600">Modern, well-maintained buses with comfortable seating for your journey.</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">ðŸ”’</div>
+                <h3 class="text-xl font-semibold text-gray-800 mb-3">Secure Payment</h3>
+                <p class="text-gray-600">Multiple payment options including Afrimoney, Qmoney, and Orange Money.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Popular Routes Section -->
+<section class="py-16 bg-white">
+    <div class="container mx-auto px-4">
+        <div class="text-center mb-12">
+            <h2 class="text-4xl font-bold text-gray-800 mb-4">Popular Routes</h2>
+            <p class="text-gray-600 text-lg">Discover our most traveled destinations</p>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div class="feature-card">
+                <div class="text-2xl mb-3">ðŸŒŠ</div>
+                <h4 class="font-semibold text-gray-800">Lumley â†” Regent Road</h4>
+                <p class="text-sm text-gray-600 mt-2">Beach to City Center</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="text-2xl mb-3">ðŸ–ï¸</div>
+                <h4 class="font-semibold text-gray-800">Aberdeen â†” Hill Station</h4>
+                <p class="text-sm text-gray-600 mt-2">Coastal Route</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="text-2xl mb-3">ðŸ˜ï¸</div>
+                <h4 class="font-semibold text-gray-800">Kissy â†” Downtown</h4>
+                <p class="text-sm text-gray-600 mt-2">East to Center</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="text-2xl mb-3">ðŸŒ†</div>
+                <h4 class="font-semibold text-gray-800">Wilberforce â†” Kissy</h4>
+                <p class="text-sm text-gray-600 mt-2">Hill to East</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="py-16 bg-gradient-to-r from-blue-600 to-purple-600 text-white">
+    <div class="container mx-auto px-4 text-center">

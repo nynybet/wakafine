@@ -1,0 +1,125 @@
+{% extends 'accounts/admin/base_admin.html' %}
+
+{% block page_title %}Create Bus{% endblock %}
+
+{% block content %}
+<div class="bg-white rounded-xl shadow-sm border border-gray-200">
+    <div class="px-6 py-4 border-b border-gray-200">
+        <div class="flex items-center justify-between">
+            <h3 class="text-lg font-semibold text-gray-900">
+                <i class="fas fa-plus-circle text-primary mr-2"></i>Create New Bus
+            </h3>
+            <a href="{% url 'accounts:admin_manage_buses' %}" 
+               class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">
+                <i class="fas fa-arrow-left mr-2"></i>Back to Buses
+            </a>
+        </div>
+    </div>
+
+    <div class="p-6">
+
+        <form method="post" class="space-y-6">
+            {% csrf_token %}
+            
+            {% if form.non_field_errors %}
+                <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+                    {{ form.non_field_errors }}
+                </div>
+            {% endif %}
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Bus Number -->
+                <div>
+                    <label for="{{ form.bus_number.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                        {{ form.bus_number.label }}
+                    </label>
+                    {{ form.bus_number }}
+                    {% if form.bus_number.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.bus_number.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Bus Name -->
+                <div>
+                    <label for="{{ form.bus_name.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                        {{ form.bus_name.label }}
+                    </label>
+                    {{ form.bus_name }}
+                    {% if form.bus_name.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.bus_name.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Bus Type -->
+                <div>
+                    <label for="{{ form.bus_type.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                        {{ form.bus_type.label }}
+                    </label>
+                    {{ form.bus_type }}
+                    {% if form.bus_type.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.bus_type.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Seat Capacity -->
+                <div>
+                    <label for="{{ form.seat_capacity.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                        {{ form.seat_capacity.label }}
+                    </label>
+                    {{ form.seat_capacity }}
+                    {% if form.seat_capacity.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.seat_capacity.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Assigned Route -->
+                <div class="md:col-span-2">
+                    <label for="{{ form.assigned_route.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                        {{ form.assigned_route.label }}
+                    </label>
+                    {{ form.assigned_route }}
+                    {% if form.assigned_route.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.assigned_route.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Is Active -->
+                <div class="md:col-span-2">
+                    <div class="flex items-center">
+                        {{ form.is_active }}
+                        <label for="{{ form.is_active.id_for_label }}" class="ml-2 text-sm font-medium text-gray-700">
+                            {{ form.is_active.label }}
+                        </label>
+                    </div>
+                    {% if form.is_active.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.is_active.errors.0 }}</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="flex items-center justify-between pt-6 border-t border-gray-200">
+                <a href="{% url 'accounts:admin_manage_buses' %}" 
+                   class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">
+                    <i class="fas fa-arrow-left mr-2"></i>Cancel
+                </a>
+                <button type="submit" 
+                        class="px-6 py-2 bg-primary text-white rounded-lg hover:bg-blue-700 transition-colors">
+                    <i class="fas fa-save mr-2"></i>Add Bus
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+/* Custom form styling */
+form input, form select, form textarea {
+    @apply w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200;
+}
+
+form input[type="checkbox"] {
+    @apply w-4 h-4 text-primary focus:ring-primary border-gray-300 rounded;
+}
+</style>
+{% endblock %}

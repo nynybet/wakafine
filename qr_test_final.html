@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Code Test - Waka-Fine Bus</title>
+    <style>
+        @media print {
+            /* Force color printing for all browsers */
+            * {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+                color-adjust: exact !important;
+            }
+
+            /* Hide everything except ticket */
+            body * {
+                visibility: hidden;
+            }
+            
+            .ticket-container, .ticket-container * {
+                visibility: visible !important;
+            }
+
+            /* FORCE QR CODE VISIBILITY - CRITICAL FOR PRINTING */
+            .ticket-container #qr-code,
+            .ticket-container #qr-code *,
+            .ticket-container .qr-code-container,
+            .ticket-container .qr-code-container * {
+                visibility: visible !important;
+                display: block !important;
+                opacity: 1 !important;
+                width: auto !important;
+                height: auto !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+                color-adjust: exact !important;
+            }
+            
+            .ticket-container #qr-code {
+                width: 130px !important;
+                height: 130px !important;
+                margin: 8px auto !important;
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                background: white !important;
+                border: 4px solid #000 !important;
+                border-radius: 8px !important;
+                padding: 8px !important;
+                visibility: visible !important;
+                opacity: 1 !important;
+            }
+            
+            .ticket-container #qr-code canvas {
+                width: 110px !important;
+                height: 110px !important;
+                border: 3px solid #000 !important;
+                background: white !important;
+                margin: 0 auto !important;
+                display: block !important;
+                border-radius: 4px !important;
+                visibility: visible !important;
+                opacity: 1 !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+                color-adjust: exact !important;
+            }
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+
+        .ticket-container {
+            max-width: 400px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .qr-section {
+            text-align: center;
+            margin: 20px 0;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+        }
+
+        #qr-code {
+            min-height: 130px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: white;
+            border-radius: 8px;
+            padding: 8px;
+            border: 2px solid #000;
+            margin: 10px auto;
+        }
+
+        .print-button {
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        button {
+            padding: 10px 20px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background: #0056b3;
+        }
+
+        .info {
+            background: #e7f3ff;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="ticket-container">
+        <h1>QR Code Print Test</h1>
+        <div class="info">
+            <strong>Test Booking:</strong> WF123456<br>
+            <strong>Route:</strong> Freetown to Bo<br>
+            <strong>Date:</strong> December 28, 2024<br>
+            <strong>Seat:</strong> A12
+        </div>
+
+        <div class="qr-section">
+            <h3>QR Code</h3>
+            <div id="qr-code"></div>
+            <p style="margin-top: 10px; font-size: 12px; color: #666;">
+                Scan QR code for verification
+            </p>
+        </div>
+
+        <div class="print-button no-print">
+            <button onclick="window.print()">🖨️ Print Ticket</button>
+        </div>
+
+        <div class="info">
+            <h4>Testing Instructions:</h4>
+            <ol>
+                <li>Wait for QR code to generate</li>
+                <li>Click "Print Ticket" button</li>
+                <li>In print dialog, enable "Background graphics" or "Print backgrounds"</li>
+                <li>Verify QR code appears black on white background</li>
+                <li>Check borders and styling are preserved</li>
+            </ol>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 QR Code test starting...');
+            
+            const qrData = `WAKA-FINE BUS TICKET
+PNR: WF123456
+Passenger: Test User
+Route: Freetown to Bo
+Date: December 28, 2024 at 08:00
+Bus: Express Bus (WF-001)
+Seat: A12
+Amount: Le 50000`;
+
+            console.log('📄 QR Data prepared:', qrData);
+
+            const qrContainer = document.getElementById('qr-code');
+            if (!qrContainer) {
+                console.error('❌ QR container not found');
+                return;
+            }
+
+            // Enhanced fallback with better styling and visibility
+            function showFallback() {
+                console.log('⚠️ Using fallback QR display');
+                qrContainer.innerHTML = `
+                    <div class="qr-fallback" style="width: 110px; height: 110px; border: 3px solid #000; border-radius: 4px; display: flex; align-items: center; justify-content: center; background: white; margin: 0 auto; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important; visibility: visible !important; opacity: 1 !important;">
+                        <div style="text-align: center; color: #000;">
+                            <div style="font-size: 14px; font-weight: bold; margin-bottom: 4px;">📱 QR CODE</div>
+                            <div style="font-size: 12px; font-family: monospace; font-weight: bold;">WF123456</div>
+                            <div style="font-size: 10px; margin-top: 4px; opacity: 1;">SCAN TO VERIFY</div>
+                        </div>
+                    </div>`;
+            }
+
+            // Wait for QRCode library to load
+            let attempts = 0;
+            const maxAttempts = 15;
+            
+            function generateQR() {
+                attempts++;
+                
+                if (typeof QRCode === 'undefined') {
+                    if (attempts < maxAttempts) {
+                        console.log(`⏳ Waiting for QRCode library... (${attempts}/${maxAttempts})`);
+                        setTimeout(generateQR, 200);
+                        return;
+                    } else {
+                        console.error('❌ QRCode library failed to load');
+                        showFallback();
+                        return;
+                    }
+                }
+
+                console.log('✅ QRCode library loaded, generating QR code...');
+
+                try {
+                    QRCode.toCanvas(qrData, {
+                        width: 130,
+                        height: 130,
+                        margin: 0,
+                        color: {
+                            dark: '#000000',
+                            light: '#ffffff'
+                        },
+                        errorCorrectionLevel: 'H'
+                    }, function (error, canvas) {
+                        if (error) {
+                            console.error('❌ QR generation error:', error);
+                            showFallback();
+                        } else {
+                            console.log('✅ QR Code generated successfully!');
+                            
+                            // Style the canvas for maximum visibility
+                            canvas.style.display = 'block';
+                            canvas.style.margin = '0 auto';
+                            canvas.style.borderRadius = '4px';
+                            canvas.style.border = '3px solid #000';
+                            canvas.style.background = 'white';
+                            canvas.style.padding = '2px';
+                            canvas.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.15)';
+                            canvas.style.webkitPrintColorAdjust = 'exact';
+                            canvas.style.printColorAdjust = 'exact';
+                            canvas.style.colorAdjust = 'exact';
+                            canvas.style.width = '110px';
+                            canvas.style.height = '110px';
+                            canvas.style.visibility = 'visible';
+                            canvas.style.opacity = '1';
+                            
+                            qrContainer.innerHTML = '';
+                            qrContainer.appendChild(canvas);
+                            
+                            console.log('🎯 QR Code added to DOM');
+                        }
+                    });
+                } catch (e) {
+                    console.error('❌ QR generation exception:', e);
+                    showFallback();
+                }
+            }
+
+            // Start generation
+            generateQR();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,85 @@
+{% extends 'accounts/admin/base_admin.html' %}
+
+{% block page_title %}Delete Bus{% endblock %}
+
+{% block content %}
+<div class="bg-white rounded-xl shadow-sm border border-gray-200">
+    <div class="px-6 py-4 border-b border-gray-200">
+        <div class="flex items-center justify-between">
+            <h3 class="text-lg font-semibold text-gray-900">
+                <i class="fas fa-trash-alt text-red-600 mr-2"></i>Delete Bus
+            </h3>
+            <a href="{% url 'accounts:admin_manage_buses' %}" 
+               class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">
+                <i class="fas fa-arrow-left mr-2"></i>Back to Buses
+            </a>
+        </div>
+    </div>
+
+    <div class="p-6">
+        <div class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <i class="fas fa-exclamation-triangle text-red-400"></i>
+                </div>
+                <div class="ml-3">
+                    <h3 class="text-sm font-medium text-red-800">
+                        Warning: This action cannot be undone
+                    </h3>
+                    <p class="mt-2 text-sm text-red-700">
+                        Are you sure you want to delete this bus? This will permanently remove the bus and all associated data.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bus Details -->
+        <div class="bg-gray-50 rounded-lg p-4 mb-6">
+            <h4 class="text-sm font-medium text-gray-900 mb-3">Bus Details:</h4>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                <div>
+                    <span class="font-medium text-gray-700">Bus Number:</span>
+                    <span class="text-gray-900">{{ bus.bus_number }}</span>
+                </div>
+                <div>
+                    <span class="font-medium text-gray-700">Bus Name:</span>
+                    <span class="text-gray-900">{{ bus.bus_name }}</span>
+                </div>
+                <div>
+                    <span class="font-medium text-gray-700">Bus Type:</span>
+                    <span class="text-gray-900">{{ bus.get_bus_type_display }}</span>
+                </div>
+                <div>
+                    <span class="font-medium text-gray-700">Seat Capacity:</span>
+                    <span class="text-gray-900">{{ bus.seat_capacity }} seats</span>
+                </div>                {% if bus.assigned_route %}
+                <div>
+                    <span class="font-medium text-gray-700">Assigned Route:</span>
+                    <span class="text-gray-900">{{ bus.assigned_route.name }}</span>
+                </div>
+                {% endif %}
+                <div>
+                    <span class="font-medium text-gray-700">Status:</span>
+                    <span class="px-2 py-1 rounded-full text-xs font-semibold
+                        {% if bus.is_active %}bg-green-100 text-green-800{% else %}bg-red-100 text-red-800{% endif %}">
+                        {% if bus.is_active %}Active{% else %}Inactive{% endif %}
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Confirmation Form -->
+        <form method="post" class="flex items-center justify-end space-x-4">
+            {% csrf_token %}
+            <a href="{% url 'accounts:admin_manage_buses' %}" 
+               class="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">
+                Cancel
+            </a>
+            <button type="submit" 
+                    class="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
+                <i class="fas fa-trash-alt mr-2"></i>Yes, Delete Bus
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}

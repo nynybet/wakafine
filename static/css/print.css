@@ -1,0 +1,60 @@
+@media print {
+    /* Allow background colors and images to be printed */
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+
+    /* Hide everything in the body by default */
+    body > *:not(.ticket-container) {
+        display: none !important;
+    }
+
+    /* Hide the print button and other non-essential elements */
+    .no-print {
+        display: none !important;
+    }
+
+    /* Ensure the ticket container is the only visible element */
+    .ticket-container {
+        display: block !important;
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        max-width: 100%;
+        margin: 0;
+        padding: 20px;
+        border: none !important;
+        box-shadow: none !important;
+        font-size: 12pt; /* Ensure consistent font size for printing */
+        height: 95vh; /* Set a fixed height for the ticket container */
+        page-break-inside: avoid; /* Prevent the ticket from being split across multiple pages */
+    }
+
+    /* Ensure all children of the ticket container are visible */
+    .ticket-container * {
+        visibility: visible !important;
+        background-color: transparent !important;
+    }
+
+    /* Remove any transformations that might affect printing */
+    .ticket-container {
+        transform: none !important;
+    }
+
+    /* Ensure header and footer have their background colors */
+    .ticket-container .bg-gradient-to-r,
+    .ticket-container .bg-gray-50 {
+        background-color: inherit !important;
+    }
+
+    /* Adjust QR code for printing */
+    .ticket-container #qr-code {
+        width: 100px !important;
+        height: 100px !important;
+        margin: 0 auto;
+    }
+    .ticket-container #qr-code canvas {
+        width: 90px !important;
+        height: 90px !important;
+    }
+}

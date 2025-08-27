@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Code Test - Payment Success Fix</title>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-container {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .qr-container {
+            text-align: center;
+            margin: 20px 0;
+        }
+        #qr-code {
+            margin: 10px auto;
+        }
+        .success { color: #10b981; }
+        .error { color: #ef4444; }
+        .info { color: #3b82f6; }
+    </style>
+</head>
+<body>
+    <h1>🎫 QR Code Test - Payment Success Fix</h1>
+    
+    <div class="test-container">
+        <h2>QR Code Generation Test</h2>
+        <p>This test verifies the QR code fix for the payment success page.</p>
+        
+        <div class="qr-container">
+            <div id="qr-code"></div>
+            <p id="status">Loading QR Code...</p>
+        </div>
+        
+        <div id="test-info">
+            <h3>Test Details:</h3>
+            <ul>
+                <li><strong>Test URL:</strong> <span id="test-url"></span></li>
+                <li><strong>QR Library:</strong> QRCode.js v1.5.3</li>
+                <li><strong>Target:</strong> Booking ticket page (not payment success)</li>
+            </ul>
+        </div>
+    </div>
+    
+    <div class="test-container">
+        <h2>Round Trip Booking Data (Example)</h2>
+        <pre id="booking-data"></pre>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 Starting QR Code test...');
+            
+            // Sample booking data (simulating Django template context)
+            const bookingData = {
+                booking_id: 49,
+                pnr: 'WF001234',
+                origin: 'Freetown',
+                destination: 'Bo',
+                date: 'Dec 15, 2024',
+                time: '08:00',
+                bus: 'Express Bus 01',
+                seat: 'A12',
+                passenger: 'John Doe',
+                amount: 'Le 50,000',
+                payment: 'Mobile Money',
+                status: 'Confirmed',
+                trip_type: 'Round Trip',
+                return_date: 'Dec 20, 2024',
+                return_bus: 'Express Bus 02',
+                return_seat: 'B15'
+            };
+            
+            // Display booking data
+            document.getElementById('booking-data').textContent = JSON.stringify(bookingData, null, 2);
+            
+            // Generate test URL (simulating Django URL generation)
+            const baseUrl = 'http://127.0.0.1:9000';
+            const ticketUrl = `${baseUrl}/bookings/${bookingData.booking_id}/ticket/`;
+            document.getElementById('test-url').textContent = ticketUrl;
+            
+            const qrContainer = document.getElementById('qr-code');
+            const statusEl = document.getElementById('status');
+            
+            function showSuccess() {
+                statusEl.innerHTML = '<span class="success">✅ QR Code generated successfully!</span>';
+                statusEl.innerHTML += '<br><span class="info">QR points to: ' + ticketUrl + '</span>';
+            }
+            
+            function showError(message) {
+                statusEl.innerHTML = '<span class="error">❌ QR Code generation failed: ' + message + '</span>';
+                qrContainer.innerHTML = `
+                    <div style="width: 110px; height: 110px; border: 2px dashed #ef4444; border-radius: 8px; display: flex; align-items: center; justify-content: center; background: #fef2f2; margin: 0 auto;">
+                        <div style="text-align: center; color: #ef4444;">
+                            <div style="font-size: 14px; font-weight: bold; margin-bottom: 6px;">⚠️ ERROR</div>
+                            <div style="font-size: 12px; font-family: monospace; font-weight: bold;">${bookingData.pnr}</div>
+                        </div>
+                    </div>`;
+            }
+            
+            // Check if QRCode library is loaded
+            function waitForQRCode(attempts = 0) {
+                if (typeof QRCode !== 'undefined') {
+                    generateQR();
+                } else if (attempts < 20) {
+                    setTimeout(() => waitForQRCode(attempts + 1), 100);
+                } else {
+                    showError('QRCode library failed to load');
+                }
+            }
+            
+            function generateQR() {
+                try {
+                    QRCode.toCanvas(qrContainer, ticketUrl, {
+                        width: 200,
+                        height: 200,
+                        margin: 2,
+                        color: {
+                            dark: '#2563eb',
+                            light: '#ffffff'
+                        },
+                        errorCorrectionLevel: 'M'
+                    }, function (error) {
+                        if (error) {
+                            console.error('QR generation error:', error);
+                            showError(error.message);
+                        } else {
+                            console.log('QR Code generated successfully!');
+                            showSuccess();
+                            
+                            const canvas = qrContainer.querySelector('canvas');
+                            if (canvas) {
+                                canvas.style.cssText = `
+                                    display: block;
+                                    margin: 10px auto;
+                                    border: 3px solid #2563eb;
+                                    border-radius: 8px;
+                                    background: white;
+                                    padding: 5px;
+                                `;
+                            }
+                        }
+                    });
+                } catch (e) {
+                    console.error('QR generation exception:', e);
+                    showError(e.message);
+                }
+            }
+            
+            waitForQRCode();
+        });
+    </script>
+</body>
+</html>

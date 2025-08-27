@@ -1,0 +1,857 @@
+{% extends 'base.html' %}
+
+{% block title %}Payment - Waka-Fine Bus{% endblock %}
+
+{% block content %}
+<div class="max-w-4x                    </label>
+
+                    <!-- Qmoney -->-4 sm:px-6 lg:px-8 py-8">
+    <!-- Progress Steps -->
+    <div class="mb-8">
+        <div class="flex items-center justify-center space-x-4">
+            <div class="flex items-center text-green-600">
+                <div class="w-8 h-8 bg-green-600 rounded-full flex items-center justify-center text-white font-bold">
+                    <i class="fas fa-check text-xs"></i>
+                </div>
+                <span class="ml-2 font-medium">Route & Bus</span>
+            </div>
+            <div class="flex-1 h-1 bg-green-200 mx-4"></div>
+            <div class="flex items-center text-green-600">
+                <div class="w-8 h-8 bg-green-600 rounded-full flex items-center justify-center text-white font-bold">
+                    <i class="fas fa-check text-xs"></i>
+                </div>
+                <span class="ml-2 font-medium">Seats</span>
+            </div>
+            <div class="flex-1 h-1 bg-green-200 mx-4"></div>
+            <div class="flex items-center text-primary">
+                <div class="w-8 h-8 bg-primary rounded-full flex items-center justify-center text-white font-bold">3</div>
+                <span class="ml-2 font-medium">Payment</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <!-- Booking Summary -->
+        <div class="bg-white rounded-xl shadow-lg p-6 h-fit">
+            <h2 class="text-xl font-semibold text-gray-800 mb-6">
+                <i class="fas fa-receipt text-primary mr-2"></i>Booking Summary
+            </h2>
+            
+            <div class="space-y-4">
+                <div class="flex justify-between items-center p-4 bg-gray-50 rounded-lg">
+                    <span class="font-medium text-gray-700">PNR Code</span>
+                    <span class="font-bold text-primary">{{ booking.pnr_code }}</span>
+                </div>
+                
+                <div class="border-t pt-4">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-gray-600">Route</span>
+                        <span class="font-medium">{{ booking.route.origin }} → {{ booking.route.destination }}</span>
+                    </div>
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-gray-600">Bus</span>
+                        <span class="font-medium">{{ booking.bus.bus_name }} ({{ booking.bus.bus_number }})</span>
+                    </div>
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-gray-600">Seat</span>
+                        <span class="font-medium">{{ booking.seat.seat_number }}</span>
+                    </div>
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-gray-600">Travel Date</span>
+                        <span class="font-medium">{{ booking.travel_date|date:"M d, Y H:i" }}</span>
+                    </div>
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-gray-600">Departure</span>
+                        <span class="font-medium">{{ booking.route.departure_time|time:"H:i" }}</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-600">Arrival</span>
+                        <span class="font-medium">{{ booking.route.arrival_time|time:"H:i" }}</span>
+                    </div>
+                </div>
+                
+                <div class="border-t pt-4">
+                    <div class="flex justify-between items-center text-lg font-semibold">
+                        <span>Total Amount</span>
+                        <span class="text-2xl text-primary">Le {{ booking.route.price|floatformat:0 }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Payment Methods -->
+        <div class="bg-white rounded-xl shadow-lg p-6">
+            <h2 class="text-xl font-semibold text-gray-800 mb-6">
+                <i class="fas fa-credit-card text-primary mr-2"></i>Choose Payment Method
+            </h2>            <form method="post" id="payment-form">
+                {% csrf_token %}
+                
+                <!-- Payment Method Selection -->
+                <div class="space-y-3 mb-6">
+                    <!-- Afrimoney -->
+                    <label class="block cursor-pointer payment-method-option" data-payment="afrimoney">
+                        <input type="radio" name="payment_method" value="afrimoney" class="sr-only">
+                        <div class="payment-option-card p-3 border-2 border-gray-200 bg-white rounded-lg hover:border-gray-300 transition-all duration-200">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center">
+                                    <div class="w-10 h-10 bg-green-500 rounded-lg flex items-center justify-center mr-3">
+                                        <i class="fas fa-mobile-alt text-white text-sm"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="font-semibold text-gray-800 text-sm">Afrimoney (Africell)</h3>
+                                        <p class="text-xs text-gray-600">030, 033, 077, 088, 090</p>
+                                    </div>
+                                </div>
+                                <div class="payment-indicator w-4 h-4 border-2 border-gray-300 rounded-full relative">
+                                    <div class="w-2 h-2 bg-white rounded-full absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 hidden"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </label>
+
+                    <!-- Orange Money -->
+                    <label class="block cursor-pointer payment-method-option" data-payment="orange_money">
+                        <input type="radio" name="payment_method" value="orange_money" class="sr-only">
+                        <div class="payment-option-card p-3 border-2 border-gray-200 bg-white rounded-lg hover:border-gray-300 transition-all duration-200">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center">
+                                    <div class="w-10 h-10 bg-orange-500 rounded-lg flex items-center justify-center mr-3">
+                                        <i class="fas fa-mobile-alt text-white text-sm"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="font-semibold text-gray-800 text-sm">Orange Money</h3>
+                                        <p class="text-xs text-gray-600">072, 073, 074, 075, 076, 078, 079</p>
+                                    </div>
+                                </div>
+                                <div class="payment-indicator w-4 h-4 border-2 border-gray-300 rounded-full relative">
+                                    <div class="w-2 h-2 bg-white rounded-full absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 hidden"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </label>
+                              
+
+                    <!-- Qmoney -->
+                    <label class="block cursor-pointer payment-method-option" data-payment="qmoney">
+                        <input type="radio" name="payment_method" value="qmoney" class="sr-only">
+                        <div class="payment-option-card p-3 border-2 border-gray-200 bg-white rounded-lg hover:border-gray-300 transition-all duration-200">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center">
+                                    <div class="w-10 h-10 bg-purple-500 rounded-lg flex items-center justify-center mr-3">
+                                        <i class="fas fa-mobile-alt text-white text-sm"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="font-semibold text-gray-800 text-sm">QCell Money</h3>
+                                        <p class="text-xs text-gray-600">031, 032, 034</p>
+                                    </div>
+                                </div>
+                                <div class="payment-indicator w-4 h-4 border-2 border-gray-300 rounded-full relative">
+                                    <div class="w-2 h-2 bg-white rounded-full absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 hidden"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </label>
+
+                    <!-- PayPal -->
+                    <label class="block cursor-pointer payment-method-option" data-payment="paypal">
+                        <input type="radio" name="payment_method" value="paypal" class="sr-only">
+                        <div class="payment-option-card p-3 border-2 border-gray-200 bg-white rounded-lg hover:border-gray-300 transition-all duration-200">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center">
+                                    <div class="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center mr-3">
+                                        <i class="fab fa-paypal text-white text-sm"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="font-semibold text-gray-800 text-sm">PayPal</h3>
+                                        <p class="text-xs text-gray-600">Credit/Debit card</p>
+                                    </div>
+                                </div>
+                                <div class="payment-indicator w-4 h-4 border-2 border-gray-300 rounded-full relative">
+                                    <div class="w-2 h-2 bg-white rounded-full absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 hidden"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </label>
+                </div>
+
+                <!-- Mobile Money Fields Section -->
+                <div id="mobile-money-section" class="mb-6 hidden">
+                    <div class="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg p-6">
+                        <h3 class="font-semibold text-green-800 mb-4 flex items-center">
+                            <i class="fas fa-mobile-alt mr-2"></i>Mobile Money Payment Details
+                        </h3>
+                        <div>
+                            <label for="mobile_money_number" class="block text-sm font-medium text-gray-700 mb-2">
+                                Mobile Money Number *
+                            </label>
+                            <input type="text" 
+                                   id="mobile_money_number" 
+                                   name="mobile_money_number" 
+                                   placeholder="+23230XXXXXX, +23272XXXXXX, +23231XXXXXX or 030XXXXXX, 072XXXXXX, 031XXXXXX"
+                                   class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200"
+                                   pattern="^(\+232(30|33|77|88|90|72|73|74|75|76|78|79|31|32|34)|0(30|33|77|88|90|72|73|74|75|76|78|79|31|32|34))\d{6}$">
+                            <p class="text-xs text-gray-600 mt-1">
+                                <i class="fas fa-info-circle mr-1"></i>
+                                Enter your mobile money number matching the selected payment method. The submit button will only be enabled once a valid number is entered.
+                            </p>
+                            <div id="mobile-number-error" class="text-red-500 text-sm mt-1 hidden"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PayPal Fields Section -->
+                <div id="paypal-section" class="mb-6 hidden">
+                    <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-6">
+                        <h3 class="font-semibold text-blue-800 mb-4 flex items-center">
+                            <i class="fab fa-paypal mr-2"></i>PayPal Payment Details
+                        </h3>
+                        <div class="space-y-4">
+                            <!-- Card Number -->
+                            <div>
+                                <label for="card_number" class="block text-sm font-medium text-gray-700 mb-2">
+                                    Card Number *
+                                </label>
+                                <input type="text" 
+                                       id="card_number" 
+                                       name="card_number" 
+                                       placeholder="1234 5678 9012 3456"
+                                       maxlength="19"
+                                       class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200">
+                                <div id="card-number-error" class="text-red-500 text-sm mt-1 hidden"></div>
+                            </div>
+
+                            <!-- Card Owner Name -->
+                            <div>
+                                <label for="card_owner_name" class="block text-sm font-medium text-gray-700 mb-2">
+                                    Cardholder Name *
+                                </label>
+                                <input type="text" 
+                                       id="card_owner_name" 
+                                       name="card_owner_name" 
+                                       placeholder="John Doe"
+                                       maxlength="100"
+                                       class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200">
+                                <div id="card-owner-error" class="text-red-500 text-sm mt-1 hidden"></div>
+                            </div>
+
+                            <!-- CVC and Expiry -->
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label for="card_cvc" class="block text-sm font-medium text-gray-700 mb-2">
+                                        CVC *
+                                    </label>
+                                    <input type="text" 
+                                           id="card_cvc" 
+                                           name="card_cvc" 
+                                           placeholder="123"
+                                           maxlength="4"
+                                           class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200">
+                                    <div id="card-cvc-error" class="text-red-500 text-sm mt-1 hidden"></div>
+                                </div>
+                                <div>
+                                    <label for="card_expiry" class="block text-sm font-medium text-gray-700 mb-2">
+                                        Expiry Date *
+                                    </label>
+                                    <input type="text" 
+                                           id="card_expiry" 
+                                           name="card_expiry" 
+                                           placeholder="MM/YY"
+                                           maxlength="5"
+                                           class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200">
+                                    <div id="card-expiry-error" class="text-red-500 text-sm mt-1 hidden"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div><!-- Payment Button -->
+                <button type="submit" id="pay-button" class="w-full bg-primary text-white py-4 rounded-lg font-semibold text-lg hover:bg-blue-700 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
+                    <i class="fas fa-lock mr-2"></i>
+                    <span id="pay-button-text">Select Payment Method</span>
+                </button>
+                
+                <p class="text-xs text-gray-500 text-center mt-4">
+                    <i class="fas fa-shield-alt mr-1"></i>
+                    Your payment is secured with 256-bit SSL encryption
+                </p>
+            </form>
+        </div>
+    </div>
+
+    <!-- Additional Information -->
+    <div class="mt-8 bg-blue-50 border border-blue-200 rounded-lg p-6">
+        <h3 class="font-semibold text-blue-800 mb-2">
+            <i class="fas fa-info-circle mr-2"></i>Important Information
+        </h3>
+        <ul class="text-sm text-blue-700 space-y-1">
+            <li>• Please arrive at the departure point 15 minutes before scheduled time</li>
+            <li>• Keep your ticket/PNR code ready for verification</li>
+            <li>• Cancellation is allowed up to 2 hours before departure</li>
+            <li>• For support, contact us at +232 785 45477</li>
+        </ul>
+    </div>
+</div>
+
+<script>
+// Enhanced payment form functionality with explicit visibility controls
+document.addEventListener('DOMContentLoaded', function() {
+    // Add CSS to ensure all payment methods stay visible
+    const style = document.createElement('style');
+    style.textContent = `
+        .payment-method-option {
+            display: block !important;
+            opacity: 1 !important;
+            visibility: visible !important;
+            transition: none !important;
+        }
+        
+        .payment-option-card {
+            transition: border-color 0.2s, background-color 0.2s, box-shadow 0.2s !important;
+        }
+        
+        .payment-method-option:not(.selected) {
+            opacity: 1 !important;
+            filter: none !important;
+            transform: none !important;
+        }
+        
+        .payment-method-option.selected .payment-option-card {
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15) !important;
+        }
+        
+        /* Override any Tailwind peer styles that might interfere */
+        .payment-method-option .payment-option-card {
+            display: block !important;
+            opacity: 1 !important;
+        }
+        
+        .payment-indicator div {
+            transition: all 0.2s ease;
+        }
+    `;
+    document.head.appendChild(style);
+    
+    const paymentForm = document.getElementById('payment-form');
+    const mobileMoneySection = document.getElementById('mobile-money-section');
+    const paypalSection = document.getElementById('paypal-section');
+    const mobileNumberInput = document.getElementById('mobile_money_number');
+    const mobileNumberError = document.getElementById('mobile-number-error');
+    const payButton = document.getElementById('pay-button');
+    const payButtonText = document.getElementById('pay-button-text');
+    const radioInputs = document.querySelectorAll('input[type="radio"][name="payment_method"]');
+    
+    // PayPal form elements
+    const cardNumberInput = document.getElementById('card_number');
+    const cardOwnerInput = document.getElementById('card_owner_name');
+    const cardCvcInput = document.getElementById('card_cvc');
+    const cardExpiryInput = document.getElementById('card_expiry');
+    const cardNumberError = document.getElementById('card-number-error');
+    const cardOwnerError = document.getElementById('card-owner-error');
+    const cardCvcError = document.getElementById('card-cvc-error');
+    const cardExpiryError = document.getElementById('card-expiry-error');
+    
+    let selectedPaymentMethod = null;
+    const mobileMoneyMethods = ['afrimoney', 'qmoney', 'orange_money'];
+    
+    // Update payment button text and state
+    function updatePaymentButton() {
+        if (selectedPaymentMethod) {
+            const amount = '{{ booking.route.price|floatformat:0 }}';
+            payButtonText.textContent = `Pay Le ${amount}`;
+            
+            if (mobileMoneyMethods.includes(selectedPaymentMethod)) {
+                payButton.disabled = !mobileNumberInput.value || !isValidPhoneNumberForProvider(mobileNumberInput.value, selectedPaymentMethod);
+            } else if (selectedPaymentMethod === 'paypal') {
+                payButton.disabled = !validatePayPalFields();
+            } else {
+                payButton.disabled = false;
+            }
+        } else {
+            payButtonText.textContent = 'Select Payment Method';
+            payButton.disabled = true;
+        }
+    }    // Validate Sierra Leone phone number using updated patterns
+    function isValidPhoneNumber(phone) {
+        const cleanPhone = phone.replace(/\s/g, '');
+        
+        // Updated patterns based on requirements
+        // Afrimoney pattern: +23230, +23233, +23277, +23288, +23290 or 030, 033, 077, 088, 090
+        const afrimoneyPattern = /^(\+232(30|33|77|88|90)|0(30|33|77|88|90))\d{6}$/;
+        
+        // Orange Money pattern: +23272-79 excluding 77 or 072-079 excluding 077  
+        const orangePattern = /^(\+232(72|73|74|75|76|78|79)|0(72|73|74|75|76|78|79))\d{6}$/;
+        
+        // QCell Money pattern: +23231, +23232, +23234 or 031, 032, 034
+        const qcellPattern = /^(\+232(31|32|34)|0(31|32|34))\d{6}$/;
+        
+        // Test against all provider patterns
+        return afrimoneyPattern.test(cleanPhone) || orangePattern.test(cleanPhone) || qcellPattern.test(cleanPhone);
+    }
+    
+    function isValidPhoneNumberForProvider(phone, provider) {
+        const cleanPhone = phone.replace(/\s/g, '');
+        const patterns = {
+            // Afrimoney accepts: +23230, +23233, +23277, +23288, +23290 or 030, 033, 077, 088, 090
+            afrimoney: /^(\+232(30|33|77|88|90)|0(30|33|77|88|90))\d{6}$/,
+            // Orange Money accepts: +23272-79 excluding 77 or 072-079 excluding 077
+            orange_money: /^(\+232(72|73|74|75|76|78|79)|0(72|73|74|75|76|78|79))\d{6}$/,
+            // QCell Money accepts: +23231, +23232, +23234 or 031, 032, 034
+            qmoney: /^(\+232(31|32|34)|0(31|32|34))\d{6}$/
+        };
+        return patterns[provider] ? patterns[provider].test(cleanPhone) : false;
+    }
+
+    // Example usage on form submit or input change:
+    function validateMobileNumberInput() {
+        const selectedProvider = document.querySelector('input[name="payment_method"]:checked')?.value;
+        const phone = document.getElementById('mobile_money_number').value.trim();
+        const errorDiv = document.getElementById('mobile-number-error');
+        
+        if (selectedProvider && ['afrimoney', 'qmoney', 'orange_money'].includes(selectedProvider)) {
+            if (!phone) {
+                errorDiv.textContent = 'Mobile money number is required';
+                errorDiv.classList.remove('hidden');
+                return false;
+            }
+            
+            if (!isValidPhoneNumberForProvider(phone, selectedProvider)) {
+                let providerInfo = getProviderInfo(selectedProvider);
+                errorDiv.textContent = `You have selected ${providerInfo.name} as your payment method. To proceed, you must enter a valid ${providerInfo.company} phone number. Accepted codes: ${providerInfo.codes}`;
+                errorDiv.classList.remove('hidden');
+                return false;
+            } else {
+                errorDiv.classList.add('hidden');
+                return true;
+            }
+        }
+        errorDiv.classList.add('hidden');
+        return true;
+    }
+    
+    // Get provider information for validation messages
+    function getProviderInfo(provider) {
+        const providerData = {
+            afrimoney: {
+                name: "Afrimoney (Africell)",
+                company: "Africell",
+                codes: "+23230, +23233, +23277, +23288, +23290 or 030, 033, 077, 088, 090"
+            },
+            orange_money: {
+                name: "Orange Money",
+                company: "Orange", 
+                codes: "+23272, +23273, +23274, +23275, +23276, +23278, +23279 or 072, 073, 074, 075, 076, 078, 079"
+            },
+            qmoney: {
+                name: "QCell Money",
+                company: "QCell",
+                codes: "+23231, +23232, +23234 or 031, 032, 034"
+            }
+        };
+        return providerData[provider] || { name: provider, company: provider, codes: "" };
+    }
+
+// Attach to input and form submit events
+document.getElementById('mobile_money_number').addEventListener('input', validateMobileNumberInput);
+document.getElementById('payment-form').addEventListener('submit', function(e) {
+    if (!validateMobileNumberInput()) {
+        e.preventDefault();
+    }
+});
+
+
+
+    // Validate credit card number using Luhn algorithm
+    function isValidCardNumber(cardNumber) {
+        const cleanNumber = cardNumber.replace(/\s/g, '');
+        if (!/^\d{13,19}$/.test(cleanNumber)) return false;
+        
+        let sum = 0;
+        let alternate = false;
+        for (let i = cleanNumber.length - 1; i >= 0; i--) {
+            let n = parseInt(cleanNumber[i]);
+            if (alternate) {
+                n *= 2;
+                if (n > 9) n = (n % 10) + 1;
+            }
+            sum += n;
+            alternate = !alternate;
+        }
+        return sum % 10 === 0;
+    }
+    
+    // Validate CVC
+    function isValidCVC(cvc) {
+        return /^\d{3,4}$/.test(cvc);
+    }
+    
+    // Validate expiry date
+    function isValidExpiry(expiry) {
+        if (!/^\d{2}\/\d{2}$/.test(expiry)) return false;
+        
+        const [month, year] = expiry.split('/').map(Number);
+        if (month < 1 || month > 12) return false;
+        
+        const currentDate = new Date();
+        const currentYear = currentDate.getFullYear() % 100;
+        const currentMonth = currentDate.getMonth() + 1;
+        
+        if (year < currentYear || (year === currentYear && month < currentMonth)) {
+            return false;
+        }
+        
+        return true;
+    }
+    
+    // Validate all PayPal fields
+    function validatePayPalFields() {
+        if (selectedPaymentMethod !== 'paypal') return true;
+        
+        const cardNumber = cardNumberInput.value.trim();
+        const cardOwner = cardOwnerInput.value.trim();
+        const cardCvc = cardCvcInput.value.trim();
+        const cardExpiry = cardExpiryInput.value.trim();
+        
+        return cardNumber && cardOwner && cardCvc && cardExpiry &&
+               isValidCardNumber(cardNumber) && isValidCVC(cardCvc) && 
+               isValidExpiry(cardExpiry) && cardOwner.length >= 2;
+    }
+    
+    // Show/hide payment sections based on payment method
+    function togglePaymentSections(paymentMethod) {
+        // Hide both sections first
+        mobileMoneySection.classList.add('hidden');
+        paypalSection.classList.add('hidden');
+        
+        // Clear required states
+        mobileNumberInput.required = false;
+        cardNumberInput.required = false;
+        cardOwnerInput.required = false;
+        cardCvcInput.required = false;
+        cardExpiryInput.required = false;
+        
+        // Show appropriate section
+        if (mobileMoneyMethods.includes(paymentMethod)) {
+            mobileMoneySection.classList.remove('hidden');
+            mobileNumberInput.required = true;
+            // Clear input when switching between mobile money providers to prevent confusion
+            if (selectedPaymentMethod && selectedPaymentMethod !== paymentMethod) {
+                mobileNumberInput.value = '';
+            }
+            validateMobileNumber();
+        } else if (paymentMethod === 'paypal') {
+            paypalSection.classList.remove('hidden');
+            cardNumberInput.required = true;
+            cardOwnerInput.required = true;
+            cardCvcInput.required = true;
+            cardExpiryInput.required = true;
+        }
+        
+        // Clear error messages
+        mobileNumberError.classList.add('hidden');
+        cardNumberError.classList.add('hidden');
+        cardOwnerError.classList.add('hidden');
+        cardCvcError.classList.add('hidden');
+        cardExpiryError.classList.add('hidden');
+    }
+    // Validate mobile number input with strict provider-specific validation
+    function validateMobileNumber() {
+        const phone = mobileNumberInput.value.trim();
+        
+        if (!phone && mobileMoneyMethods.includes(selectedPaymentMethod)) {
+            showMobileNumberError('Mobile money number is required');
+            return false;
+        }
+        
+        // Strict provider-specific validation - must match the selected company exactly
+        if (phone && selectedPaymentMethod && mobileMoneyMethods.includes(selectedPaymentMethod)) {
+            if (!isValidPhoneNumberForProvider(phone, selectedPaymentMethod)) {
+                let providerInfo = getProviderInfo(selectedPaymentMethod);
+                let msg = `You have selected ${providerInfo.name} as your payment method. To proceed, you must enter a valid ${providerInfo.company} phone number. The number you entered is not valid for ${providerInfo.company}. Accepted codes: ${providerInfo.codes}`;
+                showMobileNumberError(msg);
+                return false;
+            }
+        }
+        
+        mobileNumberError.classList.add('hidden');
+        return true;
+    }
+    
+    // Validate network compatibility on client side
+    function validateNetworkCompatibility(paymentMethod, phoneNumber) {
+        const cleanPhone = phoneNumber.replace(/\s/g, '');
+        
+        // Extract network code from phone number
+        let networkCode = '';
+        if (cleanPhone.startsWith('+232')) {
+            networkCode = cleanPhone.substring(4, 6); // Get 2 digits after +232
+        } else if (cleanPhone.startsWith('232')) {
+            networkCode = cleanPhone.substring(3, 5); // Get 2 digits after 232
+        } else if (cleanPhone.startsWith('0')) {
+            networkCode = cleanPhone.substring(1, 3); // Get 2 digits after 0
+        }
+        
+        // Network mappings with updated codes
+        const networkMappings = {
+            'afrimoney': ['30', '33', '77', '88', '90'],
+            'orange_money': ['72', '73', '74', '75', '76', '78', '79'],
+            'qmoney': ['31', '32', '34']
+        };
+        
+        const validNetworks = networkMappings[paymentMethod] || [];
+        
+        if (!validNetworks.includes(networkCode)) {
+            let providerInfo = getProviderInfo(paymentMethod);
+            return `You have selected ${providerInfo.name}. Please enter a valid ${providerInfo.company} number. Your number code ${networkCode} is not supported. Accepted codes: ${providerInfo.codes}`;
+        }
+        
+        return null;
+    }
+    
+    // Show mobile number error
+    function showMobileNumberError(message) {
+        mobileNumberError.textContent = message;
+        mobileNumberError.classList.remove('hidden');
+    }
+    
+    // Show PayPal field error
+    function showPayPalError(errorElement, message) {
+        errorElement.textContent = message;
+        errorElement.classList.remove('hidden');
+    }
+    
+    // Hide PayPal field error
+    function hidePayPalError(errorElement) {
+        errorElement.classList.add('hidden');
+    }
+    // Format phone number as user types with length validation
+    function formatPhoneNumber(input) {
+        let phone = input.replace(/\D/g, '');
+        
+        // Prevent numbers that are too long
+        if (phone.length > 15) {
+            phone = phone.substring(0, 15);
+        }
+        
+        // Handle different input formats
+        if (phone.startsWith('232')) {
+            // User typed 232... - add + prefix but check length
+            if (phone.length <= 12) {
+                phone = '+' + phone;
+            } else {
+                phone = '+' + phone.substring(0, 12);
+            }
+        } else if (phone.startsWith('0')) {
+            // User typed 0... - keep as is for local format but check length
+            if (phone.length > 9) {
+                phone = phone.substring(0, 9);
+            }
+            return phone;
+        } else if (phone.length === 8 || phone.length === 9) {
+            // Check if it's a valid network code for any provider
+            const networkStart = phone.substring(0, 2);
+            const validCodes = ['30', '31', '32', '33', '34', '72', '73', '74', '75', '76', '77', '78', '79', '88', '90'];
+            if (validCodes.includes(networkStart)) {
+                phone = '0' + phone; // Add 0 prefix for local format
+                if (phone.length > 9) {
+                    phone = phone.substring(0, 9);
+                }
+            }
+        }
+        
+        return phone;
+    }
+    
+    // Format card number as user types
+    function formatCardNumber(input) {
+        const cleaned = input.replace(/\D/g, '');
+        const formatted = cleaned.replace(/(\d{4})(?=\d)/g, '$1 ');
+        return formatted;
+    }
+    
+    // Format expiry date as user types
+    function formatExpiry(input) {
+        const cleaned = input.replace(/\D/g, '');
+        if (cleaned.length >= 2) {
+            return cleaned.substring(0, 2) + '/' + cleaned.substring(2, 4);
+        }
+        return cleaned;
+    }
+    
+    // Handle payment method selection
+    radioInputs.forEach(radio => {
+        radio.addEventListener('change', function() {
+            // Keep ALL payment methods visible - only update highlighting
+            radioInputs.forEach(r => {
+                const label = r.closest('label');
+                const card = label.querySelector('.payment-option-card');
+                const indicator = label.querySelector('.payment-indicator');
+                const indicatorDot = indicator.querySelector('div');
+                
+                // Ensure all labels remain visible and interactive
+                label.style.display = 'block';
+                label.style.opacity = '1';
+                label.classList.remove('selected');
+                
+                if (r === this && this.checked) {
+                    // Style the selected option with highlighting
+                    card.classList.remove('border-gray-200', 'bg-white');
+                    card.classList.add('border-primary', 'bg-blue-50', 'shadow-md');
+                    indicator.classList.remove('border-gray-300');
+                    indicator.classList.add('border-primary', 'bg-primary');
+                    indicatorDot.classList.remove('hidden');
+                    label.classList.add('selected');
+                } else {
+                    // Keep non-selected options fully visible with neutral styling
+                    card.classList.remove('border-primary', 'bg-blue-50', 'shadow-md');
+                    card.classList.add('border-gray-200', 'bg-white');
+                    indicator.classList.remove('border-primary', 'bg-primary');
+                    indicator.classList.add('border-gray-300');
+                    indicatorDot.classList.add('hidden');
+                }
+            });
+            
+            if (this.checked) {
+                selectedPaymentMethod = this.value;
+                togglePaymentSections(selectedPaymentMethod);
+                updatePaymentButton();
+            }
+        });
+    });
+    
+    // Handle mobile number input
+    mobileNumberInput.addEventListener('input', function() {
+        this.value = formatPhoneNumber(this.value);
+        validateMobileNumber();
+        validateMobileNumberInput(); // Also call this for consistency
+        updatePaymentButton();
+    });
+    
+    mobileNumberInput.addEventListener('blur', function() {
+        validateMobileNumber();
+        validateMobileNumberInput(); // Also call this for consistency
+        updatePaymentButton();
+    });
+    
+    // Add keyup event for real-time validation
+    mobileNumberInput.addEventListener('keyup', function() {
+        validateMobileNumber();
+        validateMobileNumberInput();
+        updatePaymentButton();
+    });
+    
+    // Handle PayPal card number input
+    cardNumberInput.addEventListener('input', function() {
+        this.value = formatCardNumber(this.value);
+        const isValid = isValidCardNumber(this.value);
+        if (this.value && !isValid) {
+            showPayPalError(cardNumberError, 'Please enter a valid card number');
+        } else {
+            hidePayPalError(cardNumberError);
+        }
+        updatePaymentButton();
+    });
+    
+    // Handle PayPal cardholder name input
+    cardOwnerInput.addEventListener('input', function() {
+        const isValid = this.value.trim().length >= 2;
+        if (this.value && !isValid) {
+            showPayPalError(cardOwnerError, 'Please enter the cardholder name');
+        } else {
+            hidePayPalError(cardOwnerError);
+        }
+        updatePaymentButton();
+    });
+    
+    // Handle PayPal CVC input
+    cardCvcInput.addEventListener('input', function() {
+        this.value = this.value.replace(/\D/g, '');
+        const isValid = isValidCVC(this.value);
+        if (this.value && !isValid) {
+            showPayPalError(cardCvcError, 'Please enter a valid CVC (3-4 digits)');
+        } else {
+            hidePayPalError(cardCvcError);
+        }
+        updatePaymentButton();
+    });
+    
+    // Handle PayPal expiry input
+    cardExpiryInput.addEventListener('input', function() {
+        this.value = formatExpiry(this.value);
+        const isValid = isValidExpiry(this.value);
+        if (this.value && !isValid) {
+            showPayPalError(cardExpiryError, 'Please enter a valid expiry date (MM/YY)');
+        } else {
+            hidePayPalError(cardExpiryError);
+        }
+        updatePaymentButton();
+    });
+    
+    // Handle form submission
+    paymentForm.addEventListener('submit', function(e) {
+        let isValid = true;
+        
+        if (mobileMoneyMethods.includes(selectedPaymentMethod)) {
+            // Double-check validation before submission
+            if (!validateMobileNumber() || !validateMobileNumberInput()) {
+                e.preventDefault();
+                isValid = false;
+            }
+            
+            // Extra validation to ensure the number matches the selected provider
+            const phone = mobileNumberInput.value.trim();
+            if (!isValidPhoneNumberForProvider(phone, selectedPaymentMethod)) {
+                let providerInfo = getProviderInfo(selectedPaymentMethod);
+                showMobileNumberError(`Invalid number for ${providerInfo.company}. Please enter a valid ${providerInfo.company} number with codes: ${providerInfo.codes}`);
+                e.preventDefault();
+                isValid = false;
+            }
+        } else if (selectedPaymentMethod === 'paypal') {
+            // Validate all PayPal fields
+            if (!cardNumberInput.value.trim()) {
+                showPayPalError(cardNumberError, 'Card number is required');
+                isValid = false;
+            } else if (!isValidCardNumber(cardNumberInput.value)) {
+                showPayPalError(cardNumberError, 'Please enter a valid card number');
+                isValid = false;
+            }
+            
+            if (!cardOwnerInput.value.trim()) {
+                showPayPalError(cardOwnerError, 'Cardholder name is required');
+                isValid = false;
+            } else if (cardOwnerInput.value.trim().length < 2) {
+                showPayPalError(cardOwnerError, 'Please enter the cardholder name');
+                isValid = false;
+            }
+            
+            if (!cardCvcInput.value.trim()) {
+                showPayPalError(cardCvcError, 'CVC is required');
+                isValid = false;
+            } else if (!isValidCVC(cardCvcInput.value)) {
+                showPayPalError(cardCvcError, 'Please enter a valid CVC (3-4 digits)');
+                isValid = false;
+            }
+            
+            if (!cardExpiryInput.value.trim()) {
+                showPayPalError(cardExpiryError, 'Expiry date is required');
+                isValid = false;
+            } else if (!isValidExpiry(cardExpiryInput.value)) {
+                showPayPalError(cardExpiryError, 'Please enter a valid expiry date (MM/YY)');
+                isValid = false;
+            }
+            
+            if (!isValid) {
+                e.preventDefault();
+            }
+        }
+        
+        if (isValid) {
+            // Show loading state
+            payButton.disabled = true;
+            payButtonText.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Processing Payment...';
+        }
+    });
+    
+    // Initialize
+    updatePaymentButton();
+});
+</script>
+{% endblock %}

@@ -1,0 +1,144 @@
+{% extends 'base.html' %}
+
+{% block title %}Search Routes - Waka-Fine Bus{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Search Header -->
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-gray-800 mb-4">Find Your Route</h1>
+            <p class="text-gray-600 text-lg">Search and book your perfect journey</p>
+        </div>
+        
+        <!-- Search Form -->
+        <div class="bg-white rounded-2xl shadow-xl p-8 mb-8 border border-gray-100">
+            <form method="GET" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">From</label>
+                    <select name="origin" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200">
+                        <option value="">Select Origin</option>
+                        <option value="lumley" {% if request.GET.origin == 'lumley' %}selected{% endif %}>Lumley</option>
+                        <option value="regent_road" {% if request.GET.origin == 'regent_road' %}selected{% endif %}>Regent Road</option>
+                        <option value="aberdeen" {% if request.GET.origin == 'aberdeen' %}selected{% endif %}>Aberdeen</option>
+                        <option value="hill_station" {% if request.GET.origin == 'hill_station' %}selected{% endif %}>Hill Station</option>
+                        <option value="kissy" {% if request.GET.origin == 'kissy' %}selected{% endif %}>Kissy</option>
+                        <option value="east_end" {% if request.GET.origin == 'east_end' %}selected{% endif %}>East End</option>
+                        <option value="wilberforce" {% if request.GET.origin == 'wilberforce' %}selected{% endif %}>Wilberforce</option>
+                        <option value="tower_hill" {% if request.GET.origin == 'tower_hill' %}selected{% endif %}>Tower Hill</option>
+                        <option value="ferry_junction" {% if request.GET.origin == 'ferry_junction' %}selected{% endif %}>Ferry Junction</option>
+                        <option value="goderich" {% if request.GET.origin == 'goderich' %}selected{% endif %}>Goderich</option>
+                        <option value="kent" {% if request.GET.origin == 'kent' %}selected{% endif %}>Kent</option>
+                        <option value="congo_cross" {% if request.GET.origin == 'congo_cross' %}selected{% endif %}>Congo Cross</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">To</label>
+                    <select name="destination" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200">
+                        <option value="">Select Destination</option>
+                        <option value="lumley" {% if request.GET.destination == 'lumley' %}selected{% endif %}>Lumley</option>
+                        <option value="regent_road" {% if request.GET.destination == 'regent_road' %}selected{% endif %}>Regent Road</option>
+                        <option value="aberdeen" {% if request.GET.destination == 'aberdeen' %}selected{% endif %}>Aberdeen</option>
+                        <option value="hill_station" {% if request.GET.destination == 'hill_station' %}selected{% endif %}>Hill Station</option>
+                        <option value="kissy" {% if request.GET.destination == 'kissy' %}selected{% endif %}>Kissy</option>
+                        <option value="east_end" {% if request.GET.destination == 'east_end' %}selected{% endif %}>East End</option>
+                        <option value="wilberforce" {% if request.GET.destination == 'wilberforce' %}selected{% endif %}>Wilberforce</option>
+                        <option value="tower_hill" {% if request.GET.destination == 'tower_hill' %}selected{% endif %}>Tower Hill</option>
+                        <option value="ferry_junction" {% if request.GET.destination == 'ferry_junction' %}selected{% endif %}>Ferry Junction</option>
+                        <option value="goderich" {% if request.GET.destination == 'goderich' %}selected{% endif %}>Goderich</option>
+                        <option value="kent" {% if request.GET.destination == 'kent' %}selected{% endif %}>Kent</option>
+                        <option value="congo_cross" {% if request.GET.destination == 'congo_cross' %}selected{% endif %}>Congo Cross</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Travel Date</label>
+                    <input type="date" name="travel_date" value="{{ request.GET.travel_date }}" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200" min="{{ today|date:'Y-m-d' }}">
+                </div>
+                
+                <div class="flex items-end">
+                    <button type="submit" class="w-full bg-primary text-white p-3 rounded-lg font-semibold hover:bg-blue-700 transition-all duration-300 transform hover:scale-105">
+                        <i class="fas fa-search mr-2"></i>Search Routes
+                    </button>
+                </div>
+            </form>
+        </div>
+        
+        <!-- Search Results -->
+        {% if routes %}
+            <div class="space-y-6">
+                <h2 class="text-2xl font-bold text-gray-800">Available Routes</h2>
+                {% for route in routes %}
+                    <div class="bg-white rounded-2xl shadow-lg p-6 border border-gray-100 hover:shadow-xl transition-all duration-300">
+                        <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 items-center">
+                            <div class="lg:col-span-2">
+                                <div class="flex items-center justify-between mb-4">
+                                    <div class="flex items-center">
+                                        <div class="text-center">
+                                            <p class="text-lg font-semibold text-gray-800">{{ route.get_origin_display }}</p>
+                                            <p class="text-sm text-gray-500">{{ route.departure_time|time:"H:i" }}</p>
+                                        </div>
+                                        <div class="flex-1 mx-4">
+                                            <div class="border-t-2 border-dashed border-gray-300 relative">
+                                                <i class="fas fa-bus absolute -top-3 left-1/2 transform -translate-x-1/2 bg-white px-2 text-primary"></i>
+                                            </div>
+                                        </div>
+                                        <div class="text-center">
+                                            <p class="text-lg font-semibold text-gray-800">{{ route.get_destination_display }}</p>
+                                            <p class="text-sm text-gray-500">{{ route.arrival_time|time:"H:i" }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="flex items-center text-sm text-gray-600 space-x-4">
+                                    <span><i class="fas fa-clock mr-1"></i>{{ route.duration }}</span>
+                                    <span><i class="fas fa-dollar-sign mr-1"></i>Le {{ route.price|floatformat:0 }}</span>
+                                </div>
+                            </div>
+                            
+                            <div class="text-center">
+                                <p class="text-sm text-gray-500 mb-1">Available Buses</p>
+                                <p class="text-2xl font-bold text-primary">{{ route.available_buses.count }}</p>
+                            </div>
+                            
+                            <div class="text-center lg:text-right">
+                                <a href="{% url 'routes:detail' route.pk %}" class="inline-block bg-primary text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-all duration-300 transform hover:scale-105">
+                                    <i class="fas fa-arrow-right mr-2"></i>View Buses
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% elif request.GET %}
+            <div class="text-center py-12">
+                <i class="fas fa-search text-6xl text-gray-300 mb-4"></i>
+                <h3 class="text-xl font-semibold text-gray-600 mb-2">No routes found</h3>
+                <p class="text-gray-500">Try adjusting your search criteria</p>
+            </div>
+        {% else %}
+            <div class="text-center py-12">
+                <i class="fas fa-route text-6xl text-gray-300 mb-4"></i>
+                <h3 class="text-xl font-semibold text-gray-600 mb-2">Search for routes</h3>
+                <p class="text-gray-500">Enter your travel details above to find available routes</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+    // Set minimum date to today
+    document.addEventListener('DOMContentLoaded', function() {
+        const dateInput = document.querySelector('input[type="date"]');
+        if (dateInput) {
+            const today = new Date().toISOString().split('T')[0];
+            if (!dateInput.value) {
+                dateInput.value = today;
+            }
+            dateInput.min = today;
+        }
+    });
+</script>
+{% endblock %}
+{% endblock %}

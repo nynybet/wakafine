@@ -1,0 +1,559 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Payment Successful - Waka-Fine Bus{% endblock %}
+
+{% block extra_head %}
+<style>
+/* Screen styling - optimized from ticket_print.html */
+.ticket-container {
+    max-width: 22rem;
+    margin: 1rem auto;
+    font-size: 0.85rem;
+    background: white !important;
+    border: 1px solid #d1d5db;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.qr-code-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 130px;
+    padding: 5px;
+}
+
+#qr-code {
+    width: 130px !important;
+    height: 130px !important;
+    margin: 8px auto !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    background: white !important;
+    border: 4px solid #1e3a8a !important;
+    border-radius: 8px !important;
+    padding: 8px !important;
+    box-sizing: border-box;
+}
+
+#qr-code canvas {
+    width: 110px !important;
+    height: 110px !important;
+    border: 3px solid #1e3a8a !important;
+    background: white !important;
+    border-radius: 6px !important;
+    display: block !important;
+    margin: 0 auto !important;
+    padding: 4px !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    color-adjust: exact !important;
+}
+
+/* Enhanced print styles based on ticket_print.html */
+@media print {
+    /* Force color printing for all browsers */
+    * {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+        color-adjust: exact !important;
+    }
+
+    /* Hide everything except ticket */
+    body * {
+        visibility: hidden;
+    }
+    
+    .ticket-container, .ticket-container * {
+        visibility: visible !important;
+    }
+
+    /* Hide non-essential elements */
+    .no-print {
+        display: none !important;
+        visibility: hidden !important;
+    }
+
+    /* Optimize ticket for single page */
+    .ticket-container {
+        position: absolute !important;
+        top: 10px !important;
+        left: 10px !important;
+        right: 10px !important;
+        width: auto !important;
+        max-width: none !important;
+        margin: 0 !important;
+        padding: 15px !important;
+        background: white !important;
+        border: 2px solid #333 !important;
+        box-shadow: none !important;
+        page-break-inside: avoid !important;
+        font-size: 11pt !important;
+        line-height: 1.2 !important;
+        height: auto !important;
+        max-height: 95vh !important;
+        overflow: hidden !important;
+    }
+
+    /* Force background colors for headers/footers */
+    .ticket-container .bg-gradient-to-r.from-green-500 {
+        background: linear-gradient(to right, #10b981, #059669) !important;
+        background-color: #10b981 !important;
+    }
+    
+    .ticket-container .bg-gradient-to-r.from-blue-500 {
+        background: linear-gradient(to right, #3b82f6, #2563eb) !important;
+        background-color: #3b82f6 !important;
+    }
+    
+    .ticket-container .bg-gray-50 {
+        background-color: #f9fafb !important;
+    }
+
+    /* Ensure text colors are visible */
+    .ticket-container .text-white {
+        color: white !important;
+    }
+    
+    .ticket-container .text-green-100 {
+        color: #dcfce7 !important;
+    }
+    
+    .ticket-container .text-blue-100 {
+        color: #dbeafe !important;
+    }
+
+    /* FORCE QR CODE VISIBILITY - CRITICAL FOR PRINTING */
+    .ticket-container #qr-code,
+    .ticket-container #qr-code *,
+    .ticket-container .qr-code-container,
+    .ticket-container .qr-code-container * {
+        visibility: visible !important;
+        display: block !important;
+        opacity: 1 !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+        color-adjust: exact !important;
+    }
+    
+    .ticket-container #qr-code {
+        width: 130px !important;
+        height: 130px !important;
+        margin: 8px auto !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        background: white !important;
+        border: 4px solid #000 !important;
+        border-radius: 8px !important;
+        padding: 8px !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+    }
+    
+    .ticket-container #qr-code canvas {
+        width: 110px !important;
+        height: 110px !important;
+        border: 3px solid #000 !important;
+        background: white !important;
+        margin: 0 auto !important;
+        display: block !important;
+        border-radius: 4px !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+        color-adjust: exact !important;
+    }
+
+    /* Compact spacing for print */
+    .ticket-container .p-6 {
+        padding: 8px !important;
+    }
+    .ticket-container .p-4 {
+        padding: 6px !important;
+    }
+    .ticket-container .mb-6 {
+        margin-bottom: 8px !important;
+    }
+    .ticket-container .pt-4,
+    .ticket-container .pt-6 {
+        padding-top: 6px !important;
+    }
+}
+</style>
+{% endblock %>
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Success Animation -->
+    <div class="text-center mb-8 animate-bounce-in">
+        <div class="w-20 h-20 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
+            <i class="fas fa-check text-white text-3xl"></i>
+        </div>
+        <h1 class="text-3xl font-bold text-gray-800 mb-2">Payment Successful!</h1>
+        <p class="text-gray-600">Your booking has been confirmed. Have a safe journey!</p>
+    </div>    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">        <!-- Ticket -->
+        <div class="bg-white rounded-xl shadow-lg overflow-hidden ticket-container max-w-md mx-auto">
+            <!-- Ticket Header -->
+            <div class="bg-gradient-to-r from-green-500 to-green-600 text-white p-4">
+                <div class="flex justify-between items-center">                    <div>
+                        <h2 class="text-lg font-semibold">Digital Ticket</h2>
+                        <p class="text-green-100">Waka-Fine Bus</p>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-sm text-green-100">PNR</p>
+                        <p class="text-base font-bold">{{ booking.pnr_code }}</p>
+                    </div>
+                </div>
+            </div>            <!-- Ticket Body -->
+            <div class="p-4">
+                <!-- Route Information -->
+                <div class="flex justify-between items-center mb-6">
+                    <div class="text-center">
+                        <p class="text-2xl font-bold text-gray-800">{{ booking.route.origin }}</p>
+                        <p class="text-sm text-gray-600">{{ booking.route.departure_time|time:"H:i" }}</p>
+                    </div>
+                    <div class="flex-1 px-4">
+                        <div class="relative">
+                            <div class="flex items-center">
+                                <div class="flex-1 border-t-2 border-dashed border-gray-300"></div>
+                                <div class="px-3">
+                                    <i class="fas fa-bus text-primary text-xl"></i>
+                                </div>
+                                <div class="flex-1 border-t-2 border-dashed border-gray-300"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="text-center">
+                        <p class="text-2xl font-bold text-gray-800">{{ booking.route.destination }}</p>
+                        <p class="text-sm text-gray-600">{{ booking.route.arrival_time|time:"H:i" }}</p>
+                    </div>
+                </div>
+
+                <!-- Travel Details -->
+                <div class="grid grid-cols-2 gap-4 mb-6">
+                    <div class="bg-gray-50 p-3 rounded-lg">
+                        <p class="text-xs text-gray-600 uppercase">Date</p>
+                        <p class="font-semibold">{{ booking.travel_date|date:"M d, Y" }}</p>
+                    </div>
+                    <div class="bg-gray-50 p-3 rounded-lg">
+                        <p class="text-xs text-gray-600 uppercase">Bus</p>
+                        <p class="font-semibold">{{ booking.bus.bus_name }}</p>
+                    </div>
+                    <div class="bg-gray-50 p-3 rounded-lg">
+                        <p class="text-xs text-gray-600 uppercase">Seat</p>
+                        <p class="font-semibold">{{ booking.seat.seat_number }}</p>
+                    </div>
+                    <div class="bg-gray-50 p-3 rounded-lg">
+                        <p class="text-xs text-gray-600 uppercase">Amount</p>
+                        <p class="font-semibold">Le {{ booking.route.price|floatformat:0 }}</p>
+                    </div>
+                </div>                <!-- Passenger Information -->
+                <div class="border-t pt-4 mb-6">
+                    <p class="text-xs text-gray-600 uppercase mb-2">Passenger</p>
+                    <p class="font-semibold text-lg">{{ booking.customer.get_full_name|default:booking.customer.username }}</p>
+                    <p class="text-gray-600">{{ booking.customer.email }}</p>
+                </div>
+                
+                <!-- Payment Information -->
+                <div class="border-t pt-4 mb-6">
+                    <p class="text-xs text-gray-600 uppercase mb-2">Payment Details</p>
+                    <div class="space-y-2">
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Method:</span>
+                            <span class="font-semibold">{{ booking.get_payment_method_display }}</span>
+                        </div>
+                        {% if booking.mobile_money_number %}
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Mobile Number:</span>
+                            <span class="font-semibold">{{ booking.mobile_money_number }}</span>
+                        </div>
+                        {% endif %}
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Amount:</span>
+                            <span class="font-semibold text-primary">Le {{ booking.amount_paid|floatformat:0 }}</span>
+                        </div>
+                    </div>
+                </div>                <!-- QR Code -->
+                <div class="text-center border-t pt-6">
+                    <div class="bg-white p-4 inline-block rounded-lg border border-gray-300">
+                        <div class="qr-code-container">
+                            <div id="qr-code" class="flex justify-center items-center">
+                                <!-- Default ticket info while QR loads -->
+                                <div class="qr-fallback" style="width: 110px; height: 110px; border: 3px solid #1e3a8a; border-radius: 8px; display: flex; align-items: center; justify-content: center; background: #f9fafb; margin: 0 auto;">
+                                    <div style="text-align: center; color: #1e3a8a;">
+                                        <div style="font-size: 14px; font-weight: bold; margin-bottom: 6px;">🎫 TICKET</div>
+                                        <div style="font-size: 12px; font-family: monospace; font-weight: bold;">{{ booking.pnr_code }}</div>
+                                        <div style="font-size: 10px; margin-top: 6px;">{{ booking.route.origin }} → {{ booking.route.destination }}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <p class="text-xs text-gray-600 mt-2">Scan QR code for verification</p>
+                    </div>
+                </div>
+            </div>            <!-- Ticket Footer -->
+            <div class="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-4 py-3 border-t">
+                <p class="text-xs text-blue-100 text-center">
+                    Please present this ticket at the boarding point. Keep your ID ready for verification.
+                </p>
+            </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="space-y-6 no-print">            <!-- Action Options -->
+            <div class="bg-white rounded-xl shadow-lg p-6">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">
+                    <i class="fas fa-ticket-alt text-primary mr-2"></i>Ticket Actions
+                </h3>
+                <div class="space-y-3">
+                    <button onclick="printTicket()" 
+                            class="w-full bg-gray-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-gray-700 transition-colors duration-200 flex items-center justify-center" id="print-button">
+                        <i class="fas fa-print mr-2"></i>
+                        Print Ticket
+                    </button>
+                    <div id="print-status" class="text-center text-sm text-gray-500 hidden">
+                        ✅ Ticket is ready to print
+                    </div>
+                </div>
+            </div>
+
+            <!-- Share Options -->
+            <div class="bg-white rounded-xl shadow-lg p-6">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">
+                    <i class="fas fa-share text-primary mr-2"></i>Share Ticket
+                </h3>
+                <div class="space-y-3">
+                    <button onclick="shareWhatsApp()" 
+                            class="w-full bg-green-500 text-white py-3 px-4 rounded-lg font-medium hover:bg-green-600 transition-colors duration-200 flex items-center justify-center">
+                        <i class="fab fa-whatsapp mr-2"></i>
+                        Share via WhatsApp
+                    </button>
+                    <button onclick="copyToClipboard()" 
+                            class="w-full bg-blue-500 text-white py-3 px-4 rounded-lg font-medium hover:bg-blue-600 transition-colors duration-200 flex items-center justify-center">
+                        <i class="fas fa-copy mr-2"></i>
+                        Copy PNR Code
+                    </button>
+                </div>
+            </div>
+
+            <!-- Next Steps -->
+            <div class="bg-blue-50 border border-blue-200 rounded-xl p-6">
+                <h3 class="text-lg font-semibold text-blue-800 mb-4">
+                    <i class="fas fa-info-circle mr-2"></i>Next Steps
+                </h3>
+                <ul class="space-y-2 text-sm text-blue-700">
+                    <li class="flex items-start">
+                        <i class="fas fa-clock text-blue-500 mr-2 mt-0.5"></i>
+                        Arrive 15 minutes before departure
+                    </li>
+                    <li class="flex items-start">
+                        <i class="fas fa-id-card text-blue-500 mr-2 mt-0.5"></i>
+                        Bring valid ID for verification
+                    </li>
+                    <li class="flex items-start">
+                        <i class="fas fa-mobile-alt text-blue-500 mr-2 mt-0.5"></i>
+                        Keep this ticket on your phone
+                    </li>
+                    <li class="flex items-start">
+                        <i class="fas fa-phone text-blue-500 mr-2 mt-0.5"></i>
+                        Call +232 785 45477 for support
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="space-y-3">
+                <a href="{% url 'bookings:list' %}" 
+                   class="w-full bg-gray-100 text-gray-700 py-3 px-4 rounded-lg font-medium hover:bg-gray-200 transition-colors duration-200 flex items-center justify-center">
+                    <i class="fas fa-list mr-2"></i>
+                    View All Bookings
+                </a>
+                <a href="{% url 'routes:search' %}" 
+                   class="w-full bg-green-100 text-green-700 py-3 px-4 rounded-lg font-medium hover:bg-green-200 transition-colors duration-200 flex items-center justify-center">
+                    <i class="fas fa-plus mr-2"></i>
+                    Book Another Trip
+                </a>            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- QR Code Library -->
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('🚀 QR Code generation starting...');
+    
+    window.qrCodeReady = false;
+    const bookingData = {
+        pnr: '{{ booking.pnr_code|escapejs }}',
+        origin: '{{ booking.route.origin|escapejs }}',
+        destination: '{{ booking.route.destination|escapejs }}',
+        date: '{{ booking.travel_date|date:"M d, Y"|escapejs }}',
+        time: '{{ booking.travel_date|date:"H:i"|escapejs }}',
+        bus: '{{ booking.bus.bus_name|escapejs }}',
+        seat: '{{ booking.seat.seat_number|escapejs }}',
+        passenger: '{{ booking.customer.get_full_name|default:booking.customer.username|escapejs }}',
+        amount: 'Le {{ booking.amount_paid|floatformat:0|escapejs }}',
+        payment: '{{ booking.get_payment_method_display|escapejs }}',
+        status: '{{ booking.get_status_display|escapejs }}'
+    };
+    
+    // Simplified QR data for faster generation
+    const qrData = `PNR:${bookingData.pnr}|${bookingData.origin}-${bookingData.destination}|${bookingData.date}|Seat:${bookingData.seat}|${bookingData.passenger}`;
+    const qrContainer = document.getElementById('qr-code');
+    
+    function showFallback(reason = 'Unknown') {
+        console.log(`⚠️ Using fallback QR display. Reason: ${reason}`);
+        qrContainer.innerHTML = `
+            <div class="qr-fallback" style="width: 110px; height: 110px; border: 3px solid #1e3a8a; border-radius: 8px; display: flex; align-items: center; justify-content: center; background: #f9fafb; margin: 0 auto;">
+                <div style="text-align: center; color: #1e3a8a;">
+                    <div style="font-size: 14px; font-weight: bold; margin-bottom: 6px;">📱 QR CODE</div>
+                    <div style="font-size: 12px; font-family: monospace; font-weight: bold;">${bookingData.pnr}</div>
+                    <div style="font-size: 10px; margin-top: 6px; opacity: 1;">SCAN TO VERIFY</div>
+                </div>
+            </div>`;
+        window.qrCodeReady = true;
+        updatePrintStatus();
+    }
+
+    // Check if QRCode library is loaded with timeout
+    function waitForQRCode(attempts = 0) {
+        if (typeof QRCode !== 'undefined') {
+            generateQRCode();
+        } else if (attempts < 10) {
+            setTimeout(() => waitForQRCode(attempts + 1), 100);
+        } else {
+            console.error('❌ QRCode library failed to load after 1 second.');
+            showFallback('Library timeout');
+        }
+    }
+    
+    function generateQRCode() {
+        try {
+            QRCode.toCanvas(qrData, {
+                width: 110,
+                height: 110,
+                margin: 1,
+                color: {
+                    dark: '#1e3a8a',
+                    light: '#ffffff'
+                },
+                errorCorrectionLevel: 'M' // Balanced quality/speed
+            }, function (error, canvas) {
+                if (error) {
+                    console.error('❌ QR generation failed:', error);
+                    showFallback('QR generation error');
+                } else {
+                    console.log('✅ QR Code generated successfully!');
+                    canvas.style.cssText = `
+                        display: block;
+                        margin: 0 auto;
+                        border-radius: 6px;
+                        border: 3px solid #1e3a8a;
+                        background: white;
+                        padding: 4px;
+                        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+                        width: 110px;
+                        height: 110px;
+                        -webkit-print-color-adjust: exact;
+                        print-color-adjust: exact;
+                        color-adjust: exact;
+                    `;
+                    qrContainer.innerHTML = '';
+                    qrContainer.appendChild(canvas);
+                    window.qrCodeReady = true;
+                    updatePrintStatus();
+                }
+            });
+        } catch (e) {
+            console.error('❌ QR generation exception:', e);
+            showFallback('QR generation exception');
+        }
+    }
+    
+    function updatePrintStatus() {
+        const statusEl = document.getElementById('print-status');
+        if (statusEl) {
+            statusEl.classList.remove('hidden');
+            statusEl.innerHTML = '✅ Ticket is ready to print';
+        }
+    }
+    
+    // Start QR code generation with library loading check
+    waitForQRCode();
+});
+
+function shareWhatsApp() {
+    const text = `🚌 My Waka-Fine Bus Ticket
+PNR: {{ booking.pnr_code }}
+Route: {{ booking.route.origin }} → {{ booking.route.destination }}
+Date: {{ booking.travel_date|date:"M d, Y H:i" }}
+Bus: {{ booking.bus.bus_name }}
+Seat: {{ booking.seat.seat_number }}
+
+Safe travels! 🌟`;
+    
+    const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
+    window.open(url, '_blank');
+}
+
+function copyToClipboard() {
+    const pnr = '{{ booking.pnr_code }}';
+    navigator.clipboard.writeText(pnr).then(function() {
+        // Show success message
+        const button = event.target.closest('button');
+        const originalText = button.innerHTML;
+        button.innerHTML = '<i class="fas fa-check mr-2"></i>Copied!';
+        button.classList.remove('bg-blue-500', 'hover:bg-blue-600');
+        button.classList.add('bg-green-500', 'hover:bg-green-600');
+        
+        setTimeout(() => {
+            button.innerHTML = originalText;
+            button.classList.remove('bg-green-500', 'hover:bg-green-600');
+            button.classList.add('bg-blue-500', 'hover:bg-blue-600');
+        }, 2000);
+    }).catch(function(err) {
+        alert('Failed to copy PNR code');
+    });
+}
+
+function printTicket() {
+    // Show loading state immediately
+    const button = document.getElementById('print-button');
+    const originalText = button.innerHTML;
+    button.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Preparing...';
+    button.disabled = true;
+    
+    // Optimized print function - immediate execution
+    function executePrint() {
+        try {
+            // Execute print immediately
+            window.print();
+            
+            // Reset button after print dialog
+            setTimeout(() => {
+                button.innerHTML = originalText;
+                button.disabled = false;
+            }, 1000);
+        } catch (error) {
+            console.error('Print error:', error);
+            button.innerHTML = originalText;
+            button.disabled = false;
+            alert('Print failed. Please try again.');
+        }
+    }
+    
+    // Execute print immediately - optimized for speed
+    setTimeout(executePrint, 100);
+}
+
+
+</script>
+{% endblock %}

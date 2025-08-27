@@ -1,0 +1,162 @@
+{% extends 'accounts/admin/base_admin.html' %}
+
+{% block page_title %}{{ route.name }} - Route Details{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto">
+    <!-- Route Header -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-900 mb-2">
+                    <i class="fas fa-route text-primary mr-2"></i>
+                    {{ route.name }}
+                </h1>
+                <p class="text-gray-600">{{ route.origin }} → {{ route.destination }}</p>
+            </div>
+            <div class="mt-4 md:mt-0 flex items-center space-x-3">
+                <span class="{% if route.is_active %}bg-green-100 text-green-800{% else %}bg-red-100 text-red-800{% endif %} px-3 py-1 rounded-full text-sm font-medium">
+                    {% if route.is_active %}Active{% else %}Inactive{% endif %}
+                </span>
+                <a href="{% url 'routes:update' route.pk %}" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                    <i class="fas fa-edit mr-2"></i>Edit Route
+                </a>
+                <a href="{% url 'accounts:admin_manage_routes' %}" class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">
+                    <i class="fas fa-arrow-left mr-2"></i>Back to Routes
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Route Details -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        <!-- Schedule Information -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <h2 class="text-xl font-semibold text-gray-900 mb-4">
+                <i class="fas fa-clock text-primary mr-2"></i>Schedule
+            </h2>
+            <div class="space-y-4">
+                <div class="flex justify-between items-center p-3 bg-blue-50 rounded-lg">
+                    <span class="text-gray-700 font-medium">Departure Time</span>
+                    <span class="text-primary font-bold">{{ route.departure_time|time:"H:i" }}</span>
+                </div>
+                <div class="flex justify-between items-center p-3 bg-blue-50 rounded-lg">
+                    <span class="text-gray-700 font-medium">Arrival Time</span>
+                    <span class="text-primary font-bold">{{ route.arrival_time|time:"H:i" }}</span>
+                </div>
+                <div class="flex justify-between items-center p-3 bg-blue-50 rounded-lg">
+                    <span class="text-gray-700 font-medium">Duration</span>
+                    <span class="text-primary font-bold">{{ route.duration_minutes }} minutes</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pricing Information -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <h2 class="text-xl font-semibold text-gray-800 mb-4">
+                <i class="fas fa-money-bill text-primary mr-2"></i>Pricing
+            </h2>
+            <div class="space-y-4">
+                <div class="flex justify-between items-center p-3 bg-green-50 rounded-lg">
+                    <span class="text-gray-700 font-medium">Base Price</span>
+                    <span class="text-green-700 font-bold text-lg">Le {{ route.price }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Terminal Information -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        <!-- Origin Terminal -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <h2 class="text-xl font-semibold text-gray-900 mb-4">
+                <i class="fas fa-map-marker-alt text-green-600 mr-2"></i>Origin Terminal
+            </h2>
+            {% if route.origin_terminal %}
+                <div class="space-y-3">
+                    <div>
+                        <span class="text-sm font-medium text-gray-500">Terminal Name</span>
+                        <p class="text-gray-900 font-medium">{{ route.origin_terminal.name }}</p>
+                    </div>
+                    <div>
+                        <span class="text-sm font-medium text-gray-500">Type</span>
+                        <p class="text-gray-900">{{ route.origin_terminal.get_terminal_type_display }}</p>
+                    </div>
+                    <div>
+                        <span class="text-sm font-medium text-gray-500">Location</span>
+                        <p class="text-gray-900">{{ route.origin_terminal.location }}</p>
+                    </div>
+                    <div>
+                        <span class="text-sm font-medium text-gray-500">Operating Hours</span>
+                        <p class="text-gray-900">{{ route.origin_terminal.operating_hours }}</p>
+                    </div>
+                </div>
+            {% else %}
+                <div class="text-center py-8">
+                    <i class="fas fa-exclamation-triangle text-yellow-500 text-2xl mb-2"></i>
+                    <p class="text-gray-500">No origin terminal assigned</p>
+                    <a href="{% url 'routes:update' route.pk %}" class="text-blue-600 hover:text-blue-800 text-sm">Assign Terminal</a>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Destination Terminal -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <h2 class="text-xl font-semibold text-gray-900 mb-4">
+                <i class="fas fa-map-marker-alt text-red-600 mr-2"></i>Destination Terminal
+            </h2>
+            {% if route.destination_terminal %}
+                <div class="space-y-3">
+                    <div>
+                        <span class="text-sm font-medium text-gray-500">Terminal Name</span>
+                        <p class="text-gray-900 font-medium">{{ route.destination_terminal.name }}</p>
+                    </div>
+                    <div>
+                        <span class="text-sm font-medium text-gray-500">Type</span>
+                        <p class="text-gray-900">{{ route.destination_terminal.get_terminal_type_display }}</p>
+                    </div>
+                    <div>
+                        <span class="text-sm font-medium text-gray-500">Location</span>
+                        <p class="text-gray-900">{{ route.destination_terminal.location }}</p>
+                    </div>
+                    <div>
+                        <span class="text-sm font-medium text-gray-500">Operating Hours</span>
+                        <p class="text-gray-900">{{ route.destination_terminal.operating_hours }}</p>
+                    </div>
+                </div>
+            {% else %}
+                <div class="text-center py-8">
+                    <i class="fas fa-exclamation-triangle text-yellow-500 text-2xl mb-2"></i>
+                    <p class="text-gray-500">No destination terminal assigned</p>
+                    <a href="{% url 'routes:update' route.pk %}" class="text-blue-600 hover:text-blue-800 text-sm">Assign Terminal</a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Route Metadata -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        <h2 class="text-xl font-semibold text-gray-900 mb-4">
+            <i class="fas fa-info-circle text-primary mr-2"></i>Route Information
+        </h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div>
+                <span class="text-sm font-medium text-gray-500">Created</span>
+                <p class="text-gray-900">{{ route.created_at|date:"F d, Y" }}</p>
+                <p class="text-gray-600 text-sm">{{ route.created_at|time:"H:i" }}</p>
+            </div>
+            <div>
+                <span class="text-sm font-medium text-gray-500">Last Updated</span>
+                <p class="text-gray-900">{{ route.updated_at|date:"F d, Y" }}</p>
+                <p class="text-gray-600 text-sm">{{ route.updated_at|time:"H:i" }}</p>
+            </div>
+            <div>
+                <span class="text-sm font-medium text-gray-500">Status</span>
+                <p class="font-medium {% if route.is_active %}text-green-600{% else %}text-red-600{% endif %}">
+                    {% if route.is_active %}Active{% else %}Inactive{% endif %}
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

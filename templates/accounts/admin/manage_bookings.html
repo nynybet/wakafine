@@ -1,0 +1,144 @@
+{% extends 'accounts/admin/base_admin.html' %}
+
+{% block page_title %}Manage Bookings{% endblock %}
+
+{% block content %}
+<div class="bg-white rounded-xl shadow-sm border border-gray-200">
+    <div class="px-6 py-4 border-b border-gray-200">
+        <div class="flex items-center justify-between">
+            <h3 class="text-lg font-semibold text-gray-900">Booking Management</h3>
+            <div class="flex items-center space-x-4">
+                <!-- Status Filter -->
+                <form method="get" class="flex items-center space-x-2">
+                    <select name="status" class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <option value="">All Statuses</option>
+                        {% for status_value, status_label in booking_statuses %}
+                            <option value="{{ status_value }}" {% if status_filter == status_value %}selected{% endif %}>{{ status_label }}</option>
+                        {% endfor %}
+                    </select>
+                    <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                        Filter
+                    </button>
+                    {% if status_filter %}
+                        <a href="{% url 'accounts:admin_manage_bookings' %}" class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors">
+                            Clear
+                        </a>
+                    {% endif %}
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    {% if bookings %}
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">PNR</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Route</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Bus</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Travel Date</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Seats</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for booking in bookings %}
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-blue-600">
+                                {{ booking.pnr_code }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div>
+                                    <div class="text-sm font-medium text-gray-900">{{ booking.customer.get_full_name|default:booking.customer.username }}</div>
+                                    <div class="text-sm text-gray-500">{{ booking.customer.email }}</div>
+                                </div>
+                            </td>                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                {{ booking.bus.assigned_route.origin }} → {{ booking.bus.assigned_route.destination }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                {{ booking.bus.bus_number }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                {{ booking.travel_date|date:"M d, Y" }}
+                                <div class="text-xs text-gray-500">{{ booking.departure_time|time:"H:i" }}</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                {{ booking.seat_numbers|default:"N/A" }}
+                            </td>                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                Le {{ booking.amount_paid|floatformat:0 }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <form method="post" action="{% url 'accounts:admin_update_booking_status' booking.id %}" class="inline">
+                                    {% csrf_token %}
+                                    <select name="status" onchange="this.form.submit()" class="px-2 py-1 rounded-full text-xs font-semibold border-0
+                                        {% if booking.status == 'confirmed' %}bg-green-100 text-green-800
+                                        {% elif booking.status == 'pending' %}bg-yellow-100 text-yellow-800
+                                        {% elif booking.status == 'cancelled' %}bg-red-100 text-red-800
+                                        {% else %}bg-gray-100 text-gray-800{% endif %}">
+                                        {% for status_value, status_label in booking_statuses %}
+                                            <option value="{{ status_value }}" {% if booking.status == status_value %}selected{% endif %}>{{ status_label }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </form>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                {{ booking.created_at|date:"M d, Y H:i" }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">                                <div class="flex items-center space-x-2">
+                                    {% if booking.status == 'confirmed' %}
+                                        <a href="{% url 'bookings:ticket' booking.id %}" class="text-blue-600 hover:text-blue-900" title="View Ticket">
+                                            <i class="fas fa-ticket-alt"></i>
+                                        </a>
+                                    {% endif %}
+                                    <a href="{% url 'bookings:detail' booking.id %}" class="text-indigo-600 hover:text-indigo-900" title="View Details">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Pagination -->
+        {% if is_paginated %}
+            <div class="px-6 py-4 border-t border-gray-200">
+                <div class="flex items-center justify-between">
+                    <div class="text-sm text-gray-700">
+                        Showing {{ page_obj.start_index }} to {{ page_obj.end_index }} of {{ paginator.count }} bookings
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        {% if page_obj.has_previous %}
+                            <a href="?page=1{% if status_filter %}&status={{ status_filter }}{% endif %}" class="px-3 py-2 text-sm bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300">First</a>
+                            <a href="?page={{ page_obj.previous_page_number }}{% if status_filter %}&status={{ status_filter }}{% endif %}" class="px-3 py-2 text-sm bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300">Previous</a>
+                        {% endif %}
+                        
+                        <span class="px-3 py-2 text-sm bg-blue-600 text-white rounded-md">{{ page_obj.number }}</span>
+                        
+                        {% if page_obj.has_next %}
+                            <a href="?page={{ page_obj.next_page_number }}{% if status_filter %}&status={{ status_filter }}{% endif %}" class="px-3 py-2 text-sm bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300">Next</a>
+                            <a href="?page={{ paginator.num_pages }}{% if status_filter %}&status={{ status_filter }}{% endif %}" class="px-3 py-2 text-sm bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300">Last</a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    {% else %}
+        <div class="p-12 text-center">
+            <i class="fas fa-calendar-check text-4xl text-gray-300 mb-4"></i>
+            <h3 class="text-lg font-medium text-gray-600 mb-2">
+                {% if status_filter %}No bookings found with status "{{ status_filter }}"{% else %}No bookings found{% endif %}
+            </h3>
+            <p class="text-gray-500">
+                {% if status_filter %}Try adjusting your filter criteria.{% else %}Bookings will appear here once customers start booking.{% endif %}
+            </p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,562 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ticket - 8QYHBHZ1 - Waka-Fine Bus</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    <style>
+@media print {
+    /* Force color printing for all browsers */
+    * {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+        color-adjust: exact !important;
+    }
+
+    /* Hide everything except ticket */
+    body * {
+        visibility: hidden;
+    }
+    
+    .ticket-container, .ticket-container * {
+        visibility: visible !important;
+    }
+
+    /* Hide non-essential elements */
+    .no-print {
+        display: none !important;
+    }
+
+    /* Optimize ticket for single page */
+    .ticket-container {
+        position: absolute !important;
+        top: 10px !important;
+        left: 10px !important;
+        right: 10px !important;
+        width: auto !important;
+        max-width: none !important;
+        margin: 0 !important;
+        padding: 15px !important;
+        background: white !important;
+        border: 2px solid #333 !important;
+        box-shadow: none !important;
+        page-break-inside: avoid !important;
+        font-size: 11pt !important;
+        line-height: 1.2 !important;
+        height: auto !important;
+        max-height: 95vh !important;
+        overflow: hidden !important;
+    }
+
+    /* Force background colors for headers/footers */
+    .ticket-container .bg-gradient-to-r {
+        background: linear-gradient(to right, #10b981, #059669) !important;
+        background-color: #10b981 !important;
+    }
+    
+    .ticket-container .from-green-500 {
+        background-color: #10b981 !important;
+    }
+    
+    .ticket-container .from-blue-500 {
+        background-color: #3b82f6 !important;
+    }
+    
+    .ticket-container .from-primary {
+        background-color: #1e40af !important;
+    }
+    
+    .ticket-container .bg-gray-50 {
+        background-color: #f9fafb !important;
+    }
+
+    /* Ensure text colors are visible */
+    .ticket-container .text-white {
+        color: white !important;
+    }
+    
+    .ticket-container .text-green-100 {
+        color: #dcfce7 !important;
+    }
+    
+    .ticket-container .text-blue-100 {
+        color: #dbeafe !important;
+    }
+
+    /* FORCE QR CODE VISIBILITY - CRITICAL FOR PRINTING */
+    .ticket-container #qr-code,
+    .ticket-container #qr-code *,
+    .ticket-container .qr-code-container,
+    .ticket-container .qr-code-container * {
+        visibility: visible !important;
+        display: block !important;
+        opacity: 1 !important;
+        width: auto !important;
+        height: auto !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+        color-adjust: exact !important;
+    }
+    
+    .ticket-container #qr-code {
+        width: 130px !important;
+        height: 130px !important;
+        margin: 8px auto !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        background: white !important;
+        border: 4px solid #000 !important;
+        border-radius: 8px !important;
+        padding: 8px !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+    }
+    
+    .ticket-container #qr-code canvas {
+        width: 110px !important;
+        height: 110px !important;
+        border: 3px solid #000 !important;
+        background: white !important;
+        margin: 0 auto !important;
+        display: block !important;
+        border-radius: 4px !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+        color-adjust: exact !important;
+    }
+    
+    .ticket-container .qr-fallback {
+        width: 110px !important;
+        height: 110px !important;
+        border: 3px solid #000 !important;
+        background: white !important;
+        color: #000 !important;
+        margin: 0 auto !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+        color-adjust: exact !important;
+    }
+    
+    /* Force QR code visibility */
+    .ticket-container .qr-code-container {
+        background: white !important;
+        padding: 5px !important;
+        border: 1px solid #000 !important;
+        border-radius: 6px !important;
+    }
+
+    /* Compact spacing for print */
+    .ticket-container .p-6 {
+        padding: 8px !important;
+    }
+    
+    .ticket-container .mb-6 {
+        margin-bottom: 8px !important;
+    }
+    
+    .ticket-container .pt-4,
+    .ticket-container .pt-6 {
+        padding-top: 6px !important;
+    }
+}
+
+/* Screen styling for better visibility and compact layout */
+.qr-code-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 90px;
+}
+
+.ticket-container {
+    max-width: 20rem;
+    margin: 0 auto;
+    font-size: 0.85rem;
+    background: white !important;
+    border: 2px solid #e5e7eb;
+}
+
+/* Enhanced QR Code styling for better visibility */
+.qr-code-container canvas {
+    border-radius: 6px;
+    border: 2px solid #1f2937 !important;
+    background: white !important;
+    padding: 3px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    display: block;
+    margin: 0 auto;
+}
+
+.qr-fallback {
+    border: 2px solid #1f2937 !important;
+    background: white !important;
+    color: #1f2937 !important;
+}
+
+#qr-code {
+    min-height: 90px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: white !important;
+    border-radius: 6px;
+    padding: 6px;
+}
+
+/* Ensure all gradient backgrounds are visible */
+.bg-gradient-to-r.from-green-500 {
+    background: linear-gradient(to right, #10b981, #059669) !important;
+}
+
+.bg-gradient-to-r.from-blue-500 {
+    background: linear-gradient(to right, #3b82f6, #2563eb) !important;
+}
+
+.bg-gradient-to-r.from-primary {
+    background: linear-gradient(to right, #1e40af, #1d4ed8) !important;
+}
+
+.bg-gray-50 {
+    background-color: #f9fafb !important;
+}
+
+/* Enhanced text contrast */
+.text-green-100 {
+    color: #dcfce7 !important;
+}
+
+.text-blue-100 {
+    color: #dbeafe !important;
+}
+
+.text-gray-600 {
+    color: #4b5563 !important;
+}
+
+.text-gray-800 {
+    color: #1f2937 !important;
+}
+    </style>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#1e40af',
+                        secondary: '#dc2626',
+                        accent: '#fbbf24',
+                    }
+                }
+            }
+        }
+    </script>
+
+</head>
+<body class="bg-gray-100">
+    <!-- Print Button (only shows on screen) -->
+    <div class="text-center mb-3 no-print">
+        <button onclick="window.print()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors duration-200 mr-3 text-sm">
+            <i class="fas fa-print mr-1"></i>Print Ticket
+        </button>
+        <a href="/bookings/29/ticket/" class="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors duration-200 text-sm">
+            <i class="fas fa-arrow-left mr-1"></i>Back to Ticket
+        </a>
+        <p class="text-xs text-gray-600 mt-2">
+            <i class="fas fa-info-circle mr-1"></i>
+            This is a print-optimized view. All navigation elements are hidden when printing.
+        </p>
+    </div>
+
+    <!-- Compact Ticket Container - Print Optimized -->
+    <div class="ticket-container bg-white rounded-lg shadow-lg overflow-hidden">
+        <!-- Ticket Header -->
+        <div class="bg-gradient-to-r from-green-500 to-green-600 text-white p-2">
+            <div class="flex justify-between items-center">
+                <div>
+                    <h2 class="text-sm font-semibold">Digital Ticket</h2>
+                    <p class="text-xs text-green-100">Waka-Fine Bus</p>
+                </div>
+                <div class="text-right">
+                    <p class="text-xs text-green-100">PNR</p>
+                    <p class="text-sm font-bold">8QYHBHZ1</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Ticket Body -->
+        <div class="p-3">
+            <!-- Route Information -->
+            <div class="flex justify-between items-center mb-3">
+                <div class="text-center">
+                    <p class="text-lg font-bold text-gray-800">lumley</p>
+                    <p class="text-xs text-gray-600">08:00</p>
+                    
+                        <p class="text-xs text-gray-500">Lumley Bus Stop</p>
+                    
+                </div>
+                <div class="flex-1 px-2">
+                    <div class="relative">
+                        <div class="flex items-center">
+                            <div class="flex-1 border-t-2 border-dashed border-gray-300"></div>
+                            <div class="px-1">
+                                <i class="fas fa-bus text-primary text-sm"></i>
+                            </div>
+                            <div class="flex-1 border-t-2 border-dashed border-gray-300"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="text-center">
+                    <p class="text-lg font-bold text-gray-800">regent_road</p>
+                    <p class="text-xs text-gray-600">08:45</p>
+                    
+                        <p class="text-xs text-gray-500">Regent Road Bus Stop</p>
+                    
+                </div>
+            </div>
+
+            <!-- Travel Details -->
+            <div class="grid grid-cols-2 gap-2 mb-3">
+                <div class="bg-gray-50 p-2 rounded-md">
+                    <p class="text-xs text-gray-600 uppercase">Date</p>
+                    <p class="text-xs font-semibold">Jun 11, 2025</p>
+                </div>
+                <div class="bg-gray-50 p-2 rounded-md">
+                    <p class="text-xs text-gray-600 uppercase">Bus</p>
+                    <p class="text-xs font-semibold">Waka-Fine Express 1 (WF001)</p>
+                </div>
+                <div class="bg-gray-50 p-2 rounded-md">
+                    <p class="text-xs text-gray-600 uppercase">Seat</p>
+                    <p class="text-xs font-semibold text-primary">24</p>
+                </div>
+                <div class="bg-gray-50 p-2 rounded-md">
+                    <p class="text-xs text-gray-600 uppercase">Amount</p>
+                    <p class="text-xs font-semibold">Le 15000</p>
+                </div>
+            </div>
+
+            <!-- Passenger Information -->
+            <div class="border-t pt-2 mb-3">
+                <p class="text-xs text-gray-600 uppercase mb-1">Passenger</p>
+                <p class="font-semibold text-sm">Admin Admin</p>
+                <p class="text-xs text-gray-600">admin@wakafine.sl</p>
+                
+            </div>
+            
+            <!-- Payment Information -->
+            <div class="border-t pt-2 mb-3">
+                <p class="text-xs text-gray-600 uppercase mb-1">Payment Details</p>
+                <div class="space-y-1">
+                    <div class="flex justify-between">
+                        <span class="text-xs text-gray-600">Method:</span>
+                        <span class="text-xs font-semibold"></span>
+                    </div>
+                    
+                    <div class="flex justify-between">
+                        <span class="text-xs text-gray-600">Status:</span>
+                        <span class="text-xs font-semibold text-green-600">Confirmed</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- QR Code -->
+            <div class="text-center border-t pt-3" style="-webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;">
+                <div class="bg-white p-2 inline-block rounded-md border border-gray-300">
+                    <div id="qr-code" class="qr-code-container mb-1 flex justify-center" style="-webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;"></div>
+                    <p class="text-xs text-gray-600">Scan QR code for verification</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Ticket Footer -->
+        <div class="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-3 py-2 border-t">
+            <p class="text-xs text-blue-100 text-center">
+                Please present this ticket at the boarding point. Keep your ID ready for verification.
+            </p>
+            <p class="text-xs text-blue-100 text-center mt-1">
+                Support: +232 785 45477 | Generated: 08/06/2025 18:56
+            </p>
+        </div>
+    </div>
+
+    <!-- Combined QR Code Generation and Auto-print Script -->
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 QR Code generation starting...');
+            
+            // Create QR data with proper escaping
+            const bookingData = {
+                pnr: '8QYHBHZ1',
+                origin: 'lumley',
+                destination: 'regent_road',
+                date: 'Jun 11, 2025',
+                time: '08:00',
+                bus: 'Waka\u002DFine Express 1',
+                seat: '24',
+                passenger: 'Admin Admin',
+                amount: 'Le 15000',
+                payment: '',
+                status: 'Confirmed'
+            };
+            
+            const qrData = `WAKA-FINE BUS TICKET
+PNR: ${bookingData.pnr}
+Passenger: ${bookingData.passenger}
+Route: ${bookingData.origin} to ${bookingData.destination}
+Date: ${bookingData.date} at ${bookingData.time}
+Bus: ${bookingData.bus}
+Seat: ${bookingData.seat}
+Amount: ${bookingData.amount}`;
+
+            console.log('📄 QR Data prepared:', qrData);
+
+            const qrContainer = document.getElementById('qr-code');
+            if (!qrContainer) {
+                console.error('❌ QR container not found');
+                // Still dispatch ready event for fallback
+                window.dispatchEvent(new Event('qrCodeReady'));
+                return;
+            }
+
+            // Enhanced fallback with better styling and visibility
+            function showFallback() {
+                console.log('⚠️ Using fallback QR display');
+                qrContainer.innerHTML = `
+                    <div class="qr-fallback" style="width: 110px; height: 110px; border: 3px solid #000; border-radius: 4px; display: flex; align-items: center; justify-content: center; background: white; margin: 0 auto; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important; visibility: visible !important; opacity: 1 !important;">
+                        <div style="text-align: center; color: #000;">
+                            <div style="font-size: 14px; font-weight: bold; margin-bottom: 6px;">📱 QR CODE</div>
+                            <div style="font-size: 12px; font-family: monospace; font-weight: bold;">${bookingData.pnr}</div>
+                            <div style="font-size: 10px; margin-top: 6px; opacity: 1;">SCAN TO VERIFY</div>
+                        </div>
+                    </div>`;
+                // Notify that QR code is ready (even if fallback)
+                window.dispatchEvent(new Event('qrCodeReady'));
+            }
+
+            // Wait for QRCode library to load
+            let attempts = 0;
+            const maxAttempts = 15; // Reduced max attempts for faster fallback
+            
+            function generateQR() {
+                attempts++;
+                
+                if (typeof QRCode === 'undefined') {
+                    if (attempts < maxAttempts) {
+                        console.log(`⏳ Waiting for QRCode library... (${attempts}/${maxAttempts})`);
+                        setTimeout(generateQR, 200); // Reduced timeout for faster loading
+                        return;
+                    } else {
+                        console.error('❌ QRCode library failed to load');
+                        showFallback();
+                        return;
+                    }
+                }
+
+                console.log('✅ QRCode library loaded, generating QR code...');
+
+                try {
+                    QRCode.toCanvas(qrData, {
+                        width: 130, // Larger size for better visibility
+                        height: 130,
+                        margin: 0, // No margin for maximum QR content
+                        color: {
+                            dark: '#000000', // Pure black for maximum contrast
+                            light: '#ffffff' // Pure white background
+                        },
+                        errorCorrectionLevel: 'H' // High error correction for better scanning
+                    }, function (error, canvas) {
+                        if (error) {
+                            console.error('❌ QR generation error:', error);
+                            showFallback();
+                        } else {
+                            console.log('✅ QR Code generated successfully!');
+                            
+                            // Style the canvas for maximum visibility
+                            canvas.style.display = 'block';
+                            canvas.style.margin = '0 auto';
+                            canvas.style.borderRadius = '4px';
+                            canvas.style.border = '3px solid #000';
+                            canvas.style.background = 'white';
+                            canvas.style.padding = '2px';
+                            canvas.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.15)';
+                            canvas.style.webkitPrintColorAdjust = 'exact';
+                            canvas.style.printColorAdjust = 'exact';
+                            canvas.style.colorAdjust = 'exact';
+                            canvas.style.width = '110px';
+                            canvas.style.height = '110px';
+                            canvas.style.visibility = 'visible';
+                            canvas.style.opacity = '1';
+                            
+                            qrContainer.innerHTML = '';
+                            qrContainer.appendChild(canvas);
+                            
+                            console.log('🎯 QR Code added to DOM');
+                            
+                            // Notify that QR code is ready
+                            window.dispatchEvent(new Event('qrCodeReady'));
+                        }
+                    });
+                } catch (e) {
+                    console.error('❌ QR generation exception:', e);
+                    showFallback();
+                }
+            }
+
+            // Start generation immediately
+            generateQR();
+        });
+
+        // Auto-print when QR code is ready
+        let autoPrintTriggered = false;
+        const urlParams = new URLSearchParams(window.location.search);
+        let shouldAutoprint = urlParams.get('autoprint') === 'true' || false;
+        
+        function triggerAutoPrint() {
+            if (shouldAutoprint && !autoPrintTriggered) {
+                autoPrintTriggered = true;
+                console.log('🖨️ QR Code ready, triggering auto-print...');
+                setTimeout(function() {
+                    try {
+                        window.print();
+                        console.log('✅ Auto-print triggered successfully');
+                    } catch (e) {
+                        console.error('❌ Auto-print failed:', e);
+                    }
+                }, 500);
+            }
+        }
+        
+        window.addEventListener('qrCodeReady', triggerAutoPrint);
+
+        // Fallback auto-print if QR code takes too long
+        if (shouldAutoprint) {
+            setTimeout(function() {
+                if (!autoPrintTriggered) {
+                    console.log('⚠️ QR timeout, triggering fallback print...');
+                    autoPrintTriggered = true;
+                    window.print();
+                }
+            }, 5000);
+        }
+
+        // Add keyboard shortcut for printing
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey && e.key === 'p') {
+                e.preventDefault();
+                window.print();
+            }
+        });
+    </script>
+</body>
+</html>

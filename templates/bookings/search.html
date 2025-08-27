@@ -1,0 +1,135 @@
+{% extends 'base.html' %}
+
+{% block title %}Track Booking - Waka-Fine Bus{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-8">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Search Header -->
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-gray-800 mb-4">Track Your Booking</h1>
+            <p class="text-gray-600 text-lg">Enter your PNR code or scan QR code to view your ticket</p>
+        </div>
+        
+        <!-- Search Form -->
+        <div class="bg-white rounded-2xl shadow-xl p-8 mb-8 border border-gray-100">
+            <form method="GET" class="space-y-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">PNR Code</label>
+                    <div class="relative">
+                        <input type="text" name="pnr" value="{{ request.GET.pnr }}" placeholder="Enter your PNR code" class="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200 pl-12">
+                        <i class="fas fa-ticket-alt absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                    </div>
+                </div>
+                
+                <div class="text-center">
+                    <button type="submit" class="bg-primary text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-all duration-300 transform hover:scale-105">
+                        <i class="fas fa-search mr-2"></i>Track Booking
+                    </button>
+                </div>
+                
+                <div class="text-center">
+                    <p class="text-gray-500 text-sm">Or</p>
+                    <button type="button" onclick="openQRScanner()" class="mt-2 text-primary hover:text-blue-700 font-medium">
+                        <i class="fas fa-qrcode mr-2"></i>Scan QR Code
+                    </button>
+                </div>
+            </form>
+        </div>
+        
+        <!-- Search Results -->
+        {% if booking %}
+            <div class="bg-white rounded-2xl shadow-xl p-8 border border-gray-100">
+                <div class="text-center mb-6">
+                    <i class="fas fa-check-circle text-6xl text-success mb-4"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">Booking Found!</h2>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <!-- Booking Details -->
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">Booking Details</h3>
+                        <div class="space-y-3">
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">PNR Code:</span>
+                                <span class="font-semibold">{{ booking.pnr_code }}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Passenger:</span>
+                                <span class="font-semibold">{{ booking.passenger.get_full_name }}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Status:</span>
+                                <span class="px-2 py-1 rounded-full text-xs font-semibold {% if booking.status == 'confirmed' %}bg-green-100 text-green-800{% elif booking.status == 'pending' %}bg-yellow-100 text-yellow-800{% else %}bg-red-100 text-red-800{% endif %}">
+                                    {{ booking.get_status_display }}
+                                </span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Total Amount:</span>
+                                <span class="font-semibold text-primary">Le {{ booking.amount_paid|floatformat:0 }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Journey Details -->
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">Journey Details</h3>
+                        <div class="space-y-3">
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Route:</span>
+                                <span class="font-semibold">{{ booking.bus.route.get_origin_display }} → {{ booking.bus.route.get_destination_display }}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Bus:</span>
+                                <span class="font-semibold">{{ booking.bus.bus_name }}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Travel Date:</span>
+                                <span class="font-semibold">{{ booking.travel_date|date:"M d, Y" }}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Departure:</span>
+                                <span class="font-semibold">{{ booking.bus.route.departure_time|time:"H:i" }}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Seats:</span>
+                                <span class="font-semibold">{{ booking.seat_numbers }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center mt-8 pt-6 border-t border-gray-200">
+                    <a href="{% url 'bookings:ticket' booking.pk %}" class="inline-block bg-primary text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-all duration-300 transform hover:scale-105 mr-4">
+                        <i class="fas fa-ticket-alt mr-2"></i>View Full Ticket
+                    </a>
+                    <button onclick="window.print()" class="inline-block bg-gray-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-gray-700 transition-all duration-300">
+                        <i class="fas fa-print mr-2"></i>Print
+                    </button>
+                </div>
+            </div>
+        {% elif request.GET.pnr %}
+            <div class="text-center py-12">
+                <i class="fas fa-exclamation-circle text-6xl text-red-300 mb-4"></i>
+                <h3 class="text-xl font-semibold text-gray-600 mb-2">Booking not found</h3>
+                <p class="text-gray-500">Please check your PNR code and try again</p>
+            </div>
+        {% else %}
+            <div class="text-center py-12">
+                <i class="fas fa-search text-6xl text-gray-300 mb-4"></i>
+                <h3 class="text-xl font-semibold text-gray-600 mb-2">Enter your PNR code</h3>
+                <p class="text-gray-500">Your PNR code was provided when you made your booking</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+    function openQRScanner() {
+        alert('QR Code scanner would be implemented here with camera access');
+        // This would integrate with a QR code scanning library
+    }
+</script>
+{% endblock %}
+{% endblock %}

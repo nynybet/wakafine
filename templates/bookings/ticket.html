@@ -1,0 +1,522 @@
+{% extends 'accounts/admin/base_admin.html' %}
+{% load static %}
+
+{% block title %}Ticket - {{ booking.pnr_code }} - Waka-Fine Bus{% endblock %}
+{% block page_title %}View Ticket - {{ booking.pnr_code }}{% endblock %}
+
+{% block extra_css %}
+<style>
+@media print {
+    /* Force color printing for all browsers */
+    * {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+        color-adjust: exact !important;
+    }
+
+    /* Hide everything except ticket */
+    body * {
+        visibility: hidden;
+    }
+    
+    .ticket-container, .ticket-container * {
+        visibility: visible !important;
+    }
+
+    /* Hide non-essential elements */
+    .no-print {
+        display: none !important;
+    }
+
+    /* Optimize ticket for single page */
+    .ticket-container {
+        position: absolute !important;
+        top: 10px !important;
+        left: 10px !important;
+        right: 10px !important;
+        width: auto !important;
+        max-width: none !important;
+        margin: 0 !important;
+        padding: 15px !important;
+        background: white !important;
+        border: 2px solid #333 !important;
+        box-shadow: none !important;
+        page-break-inside: avoid !important;
+        font-size: 11pt !important;
+        line-height: 1.2 !important;
+        height: auto !important;
+        max-height: 95vh !important;
+        overflow: hidden !important;
+    }
+
+    /* Force background colors for headers/footers */
+    .ticket-container .bg-gradient-to-r {
+        background: linear-gradient(to right, #10b981, #059669) !important;
+        background-color: #10b981 !important;
+    }
+    
+    .ticket-container .from-green-500 {
+        background-color: #10b981 !important;
+    }
+    
+    .ticket-container .from-blue-500 {
+        background-color: #3b82f6 !important;
+    }
+    
+    .ticket-container .bg-gray-50 {
+        background-color: #f9fafb !important;
+    }
+
+    /* Ensure text colors are visible */
+    .ticket-container .text-white {
+        color: white !important;
+    }
+    
+    .ticket-container .text-green-100 {
+        color: #dcfce7 !important;
+    }
+    
+    .ticket-container .text-blue-100 {
+        color: #dbeafe !important;
+    }
+
+    /* FORCE QR CODE VISIBILITY - CRITICAL FOR PRINTING */
+    .ticket-container #qr-code,
+    .ticket-container #qr-code *,
+    .ticket-container .qr-code-container,
+    .ticket-container .qr-code-container * {
+        visibility: visible !important;
+        display: block !important;
+        opacity: 1 !important;
+        width: auto !important;
+        height: auto !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+        color-adjust: exact !important;
+    }
+    
+    .ticket-container #qr-code {
+        width: 130px !important;
+        height: 130px !important;
+        margin: 8px auto !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        background: white !important;
+        border: 4px solid #000 !important;
+        border-radius: 8px !important;
+        padding: 8px !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+    }
+    
+    .ticket-container #qr-code canvas {
+        width: 110px !important;
+        height: 110px !important;
+        border: 3px solid #000 !important;
+        background: white !important;
+        margin: 0 auto !important;
+        display: block !important;
+        border-radius: 4px !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+        color-adjust: exact !important;
+    }
+    
+    .ticket-container .qr-fallback {
+        width: 110px !important;
+        height: 110px !important;
+        border: 3px solid #000 !important;
+        background: white !important;
+        color: #000 !important;
+        margin: 0 auto !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+        color-adjust: exact !important;
+    }
+    
+    /* Force QR code container visibility */
+    .ticket-container .qr-code-container {
+        background: white !important;
+        padding: 8px !important;
+        border: 2px solid #000 !important;
+        border-radius: 8px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        min-height: 120px !important;
+    }
+    
+    /* Ensure QR code section is visible */
+    .ticket-container .border-gray-300 {
+        border-color: #000 !important;
+        border-width: 2px !important;
+    }
+
+    /* Compact spacing for print */
+    .ticket-container .p-3 {
+        padding: 8px !important;
+    }
+    
+    .ticket-container .mb-4 {
+        margin-bottom: 8px !important;
+    }
+    
+    .ticket-container .pt-3,
+    .ticket-container .pt-4 {
+        padding-top: 6px !important;
+    }
+}
+/* Screen styling for better visibility and compact layout */
+.qr-code-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 90px;
+}
+
+.ticket-container {
+    max-width: 20rem;
+    margin: 0 auto;
+    font-size: 0.85rem;
+    background: white !important;
+    border: 2px solid #e5e7eb;
+}
+
+.ticket-container .p-3 {
+    padding: 12px;
+}
+
+.ticket-container .mb-4 {
+    margin-bottom: 12px;
+}
+
+.ticket-container .text-xl {
+    font-size: 1.1rem;
+}
+
+.ticket-container .text-base {
+    font-size: 0.85rem;
+}
+
+.ticket-container .text-sm {
+    font-size: 0.75rem;
+}
+
+.ticket-container .text-xs {
+    font-size: 0.7rem;
+}
+
+/* Enhanced QR Code styling for better visibility */
+.qr-code-container canvas {
+    border-radius: 6px;
+    border: 3px solid #000 !important;
+    background: white !important;
+    padding: 3px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    display: block;
+    margin: 0 auto;
+}
+
+.qr-fallback {
+    border: 3px solid #000 !important;
+    background: white !important;
+    color: #000 !important;
+    margin: 0 auto !important;
+    display: block !important;
+}
+
+#qr-code {
+    min-height: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: white !important;
+    border-radius: 8px;
+    padding: 8px;
+    border: 2px solid #000 !important;
+}
+
+/* Ensure all gradient backgrounds are visible */
+.bg-gradient-to-r.from-green-500 {
+    background: linear-gradient(to right, #10b981, #059669) !important;
+}
+
+.bg-gradient-to-r.from-blue-500 {
+    background: linear-gradient(to right, #3b82f6, #2563eb) !important;
+}
+
+.bg-gray-50 {
+    background-color: #f9fafb !important;
+}
+
+/* Enhanced text contrast */
+.text-green-100 {
+    color: #dcfce7 !important;
+}
+
+.text-blue-100 {
+    color: #dbeafe !important;
+}
+
+.text-gray-600 {
+    color: #4b5563 !important;
+}
+
+.text-gray-800 {
+    color: #1f2937 !important;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="ticket-wrapper max-w-lg mx-auto px-2 py-4">
+    <!-- Print Button -->
+    <div class="text-center mb-3 no-print print-button">
+        <button onclick="window.print()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors duration-200 text-sm">
+            <i class="fas fa-print mr-1"></i>Print Ticket
+        </button>
+    </div>
+
+    <!-- Compact Ticket Container -->
+    <div class="ticket-container bg-white rounded-lg shadow-lg overflow-hidden">        <!-- Ticket Header -->
+        <div class="bg-gradient-to-r from-green-500 to-green-600 text-white p-2">
+            <div class="flex justify-between items-center">
+                <div>
+                    <h2 class="text-sm font-semibold">Digital Ticket</h2>
+                    <p class="text-xs text-green-100">Waka-Fine Bus</p>
+                </div>
+                <div class="text-right">
+                    <p class="text-xs text-green-100">PNR</p>
+                    <p class="text-sm font-bold">{{ booking.pnr_code }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Ticket Body -->
+        <div class="p-3">
+            <!-- Route Information -->
+            <div class="flex justify-between items-center mb-3">
+                <div class="text-center">
+                    <p class="text-lg font-bold text-gray-800">{{ booking.route.origin }}</p>
+                    <p class="text-xs text-gray-600">{{ booking.route.departure_time|time:"H:i" }}</p>
+                    {% if booking.route.origin_terminal %}
+                        <p class="text-xs text-gray-500">{{ booking.route.origin_terminal.name }}</p>
+                    {% endif %}
+                </div>
+                <div class="flex-1 px-2">
+                    <div class="relative">
+                        <div class="flex items-center">
+                            <div class="flex-1 border-t-2 border-dashed border-gray-300"></div>
+                            <div class="px-1">
+                                <i class="fas fa-bus text-primary text-sm"></i>
+                            </div>
+                            <div class="flex-1 border-t-2 border-dashed border-gray-300"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="text-center">
+                    <p class="text-lg font-bold text-gray-800">{{ booking.route.destination }}</p>
+                    <p class="text-xs text-gray-600">{{ booking.route.arrival_time|time:"H:i" }}</p>
+                    {% if booking.route.destination_terminal %}
+                        <p class="text-xs text-gray-500">{{ booking.route.destination_terminal.name }}</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Travel Details -->
+            <div class="grid grid-cols-2 gap-2 mb-3">
+                <div class="bg-gray-50 p-2 rounded-md">
+                    <p class="text-xs text-gray-600 uppercase">Date</p>
+                    <p class="text-xs font-semibold">{{ booking.travel_date|date:"M d, Y" }}</p>
+                </div>
+                <div class="bg-gray-50 p-2 rounded-md">
+                    <p class="text-xs text-gray-600 uppercase">Trip Type</p>
+                    <p class="text-xs font-semibold">
+                        {% if booking.trip_type == "round_trip" %}
+                            <span class="text-blue-600">Round Trip</span>
+                        {% else %}
+                            One Way
+                        {% endif %}
+                    </p>
+                </div>
+                {% if booking.trip_type == "round_trip" and booking.return_date %}
+                <div class="bg-blue-50 p-2 rounded-md border border-blue-200">
+                    <p class="text-xs text-blue-600 uppercase">Return Date</p>
+                    <p class="text-xs font-semibold text-blue-800">{{ booking.return_date|date:"M d, Y" }}</p>
+                </div>
+                {% endif %}
+                <div class="bg-gray-50 p-2 rounded-md">
+                    <p class="text-xs text-gray-600 uppercase">Bus</p>
+                    <p class="text-xs font-semibold">{{ booking.bus.bus_name }} ({{ booking.bus.bus_number }})</p>
+                </div>
+                <div class="bg-gray-50 p-2 rounded-md">
+                    <p class="text-xs text-gray-600 uppercase">Seat</p>
+                    <p class="text-xs font-semibold text-primary">{{ booking.seat.seat_number }}</p>
+                </div>
+                {% if booking.trip_type == "round_trip" and booking.return_bus and booking.return_seat %}
+                <div class="bg-blue-50 p-2 rounded-md border border-blue-200">
+                    <p class="text-xs text-blue-600 uppercase">Return Bus</p>
+                    <p class="text-xs font-semibold text-blue-800">{{ booking.return_bus.bus_name }} ({{ booking.return_bus.bus_number }})</p>
+                </div>
+                <div class="bg-blue-50 p-2 rounded-md border border-blue-200">
+                    <p class="text-xs text-blue-600 uppercase">Return Seat</p>
+                    <p class="text-xs font-semibold text-blue-800">{{ booking.return_seat.seat_number }}</p>
+                </div>
+                {% endif %}
+                <div class="bg-gray-50 p-2 rounded-md">
+                    <p class="text-xs text-gray-600 uppercase">Amount</p>
+                    <p class="text-xs font-semibold">Le {{ booking.amount_paid|floatformat:0 }}</p>
+                </div>
+            </div>
+
+            <!-- Passenger Information -->
+            <div class="border-t pt-2 mb-3">
+                <p class="text-xs text-gray-600 uppercase mb-1">Passenger</p>
+                <p class="font-semibold text-sm">{{ booking.customer.get_full_name|default:booking.customer.username }}</p>
+                <p class="text-xs text-gray-600">{{ booking.customer.email }}</p>
+                {% if booking.customer.phone_number %}
+                    <p class="text-xs text-gray-600">{{ booking.customer.phone_number }}</p>
+                {% endif %}
+            </div>
+            
+            <!-- Payment Information -->
+            <div class="border-t pt-2 mb-3">
+                <p class="text-xs text-gray-600 uppercase mb-1">Payment Details</p>
+                <div class="space-y-1">
+                    <div class="flex justify-between">
+                        <span class="text-xs text-gray-600">Method:</span>
+                        <span class="text-xs font-semibold">{{ booking.get_payment_method_display }}</span>
+                    </div>
+                    {% if booking.mobile_money_number %}
+                    <div class="flex justify-between">
+                        <span class="text-xs text-gray-600">Mobile Number:</span>
+                        <span class="text-xs font-semibold">{{ booking.mobile_money_number }}</span>
+                    </div>
+                    {% endif %}
+                    <div class="flex justify-between">
+                        <span class="text-xs text-gray-600">Status:</span>
+                        <span class="text-xs font-semibold text-green-600">{{ booking.get_status_display }}</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- QR Code -->
+            <div class="text-center border-t pt-3" style="-webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;">
+                <div class="bg-white p-2 inline-block rounded-md border-2 border-black" style="border: 2px solid #000 !important; background: white !important;">
+                    <div id="qr-code" class="qr-code-container mb-1 flex justify-center" style="-webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; background: white !important; border: 2px solid #000 !important; padding: 8px; border-radius: 6px;"></div>
+                    <p class="text-xs text-gray-600" style="color: #000 !important;">Scan QR code for verification</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Ticket Footer -->
+        <div class="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-3 py-2 border-t">
+            <p class="text-xs text-blue-100 text-center">
+                Please present this ticket at the boarding point. Keep your ID ready for verification.
+            </p>
+            <p class="text-xs text-blue-100 text-center mt-1">
+                Support: +232-XX-XXX-XX X | Generated: {{ booking.created_at|date:"d/m/Y H:i" }}
+            </p>
+        </div>
+    </div>
+
+    <!-- Back Button -->
+    <div class="text-center mt-3 no-print">
+        {% if user.is_admin or user.is_staff_member %}
+            <a href="{% url 'accounts:admin_manage_tickets' %}" class="text-blue-600 hover:text-blue-800 mr-3 text-xs">
+                <i class="fas fa-arrow-left mr-1"></i>Back to Admin
+            </a>
+        {% else %}
+            <a href="{% url 'bookings:detail' booking.id %}" class="text-blue-600 hover:text-blue-800 mr-3 text-xs">
+                <i class="fas fa-arrow-left mr-1"></i>Back to Details
+            </a>
+        {% endif %}
+        <a href="{% url 'bookings:list' %}" class="text-blue-600 hover:text-blue-800 text-xs">
+            <i class="fas fa-list mr-1"></i>My Bookings
+        </a>
+    </div>
+</div>
+
+<!-- QR Code Script -->
+<!-- QR Code Library and Unified Generator -->
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+<script src="{% static 'js/waka-fine-qr.js' %}"></script>
+
+<noscript>
+    <div class="qr-fallback" style="width: 110px; height: 110px; border: 3px solid #2563eb; border-radius: 4px; display: flex; align-items: center; justify-content: center; background: white; margin: 0 auto;">
+        <div style="text-align: center; color: #2563eb;">
+            <div style="font-size: 14px; font-weight: bold; margin-bottom: 4px;">🎫 TICKET</div>
+            <div style="font-size: 12px; font-family: monospace; font-weight: bold;">{{ booking.pnr_code }}</div>
+            <div style="font-size: 10px; margin-top: 4px; opacity: 1;">{{ booking.route.origin }} → {{ booking.route.destination }}</div>
+            {% if booking.trip_type == "round_trip" %}
+            <div style="font-size: 9px; margin-top: 2px; color: #1d4ed8;">ROUND TRIP</div>
+            {% endif %}
+        </div>
+    </div>
+</noscript>
+
+<script>
+function ensureQRCode() {
+    console.log('🎫 Ticket QR Code generation starting...');
+    
+    // Prepare booking data with comprehensive round trip handling - matches payment_success.html
+    const bookingData = {
+        pnr: '{{ booking.pnr_code|escapejs }}',
+        origin: '{{ booking.route.origin|escapejs }}',
+        destination: '{{ booking.route.destination|escapejs }}',
+        date: '{{ booking.travel_date|date:"M d, Y"|escapejs }}',
+        time: '{{ booking.travel_date|date:"H:i"|escapejs }}',
+        bus: '{{ booking.bus.bus_name|escapejs }}',
+        seat: '{{ booking.seat.seat_number|escapejs }}',
+        passenger: '{{ booking.customer.get_full_name|default:booking.customer.username|escapejs }}',
+        amount: 'Le {{ booking.amount_paid|floatformat:0|escapejs }}',
+        payment: '{{ booking.get_payment_method_display|escapejs }}',
+        status: '{{ booking.get_status_display|escapejs }}',
+        trip_type: '{{ booking.trip_type|escapejs }}',
+        
+        // Round trip handling - only include if actually round trip with data
+        {% if booking.trip_type == "round_trip" %}
+        is_round_trip: true,
+        {% if booking.return_date %}
+        return_date: '{{ booking.return_date|date:"M d, Y"|escapejs }}',
+        return_time: '{{ booking.return_date|date:"H:i"|escapejs }}',
+        {% endif %}
+        {% if booking.return_bus %}
+        return_bus: '{{ booking.return_bus.bus_name|escapejs }}',
+        {% endif %}
+        {% if booking.return_seat %}
+        return_seat: '{{ booking.return_seat.seat_number|escapejs }}',
+        {% endif %}
+        {% else %}
+        is_round_trip: false,
+        {% endif %}
+    };
+    
+    const qrContainer = document.getElementById('qr-code');
+    
+    // Use unified QR generator with current ticket URL - exactly like payment_success.html approach
+    generateWakaFineQRCode(bookingData, qrContainer, {
+        useCurrentUrl: true,
+        showLogs: true,
+        width: 130,
+        height: 130
+    });
+}
+
+// Ensure QR code is generated when page loads
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', ensureQRCode);
+} else {
+    ensureQRCode();
+}
+</script>
+
+{% endblock %}

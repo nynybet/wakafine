@@ -1,0 +1,207 @@
+{% extends 'accounts/admin/base_admin.html' %}
+
+{% block page_title %}Delete Terminal{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto">
+    <!-- Header -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 mb-6">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <div class="flex items-center justify-between">
+                <h3 class="text-lg font-semibold text-gray-900">
+                    <i class="fas fa-exclamation-triangle text-red-500 mr-2"></i>Confirm Terminal Deletion
+                </h3>
+                <a href="{% url 'accounts:admin_manage_terminals' %}" 
+                   class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">
+                    <i class="fas fa-arrow-left mr-2"></i>Back to Terminals
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Terminal Information Card -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 mb-6">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h4 class="text-lg font-medium text-gray-900">Terminal to be Deleted</h4>
+        </div>
+        <div class="p-6">
+            <div class="flex items-start space-x-4">
+                <div class="flex-shrink-0">
+                    <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center">
+                        {% if terminal.terminal_type == 'main_terminal' %}
+                            <i class="fas fa-building text-red-600 text-xl"></i>
+                        {% elif terminal.terminal_type == 'bus_stop' %}
+                            <i class="fas fa-map-marker-alt text-red-600 text-xl"></i>
+                        {% elif terminal.terminal_type == 'interchange' %}
+                            <i class="fas fa-exchange-alt text-red-600 text-xl"></i>
+                        {% else %}
+                            <i class="fas fa-warehouse text-red-600 text-xl"></i>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="flex-1">
+                    <h3 class="text-xl font-semibold text-gray-900">{{ terminal.name }}</h3>
+                    <div class="mt-2 space-y-2">
+                        <div class="flex items-center text-sm text-gray-600">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                                {% if terminal.terminal_type == 'main_terminal' %}bg-blue-100 text-blue-800
+                                {% elif terminal.terminal_type == 'bus_stop' %}bg-yellow-100 text-yellow-800
+                                {% elif terminal.terminal_type == 'interchange' %}bg-purple-100 text-purple-800
+                                {% else %}bg-gray-100 text-gray-800{% endif %}">
+                                {{ terminal.get_terminal_type_display }}
+                            </span>
+                        </div>
+                        <div class="flex items-center text-sm text-gray-600">
+                            <i class="fas fa-map-marker-alt mr-2"></i>
+                            {{ terminal.location }}, {{ terminal.get_city_display }}
+                        </div>
+                        {% if terminal.contact_number %}
+                        <div class="flex items-center text-sm text-gray-600">
+                            <i class="fas fa-phone mr-2"></i>
+                            {{ terminal.contact_number }}
+                        </div>
+                        {% endif %}
+                        <div class="flex items-center text-sm text-gray-600">
+                            <i class="fas fa-clock mr-2"></i>
+                            {{ terminal.operating_hours_start|time:"H:i" }} - {{ terminal.operating_hours_end|time:"H:i" }}
+                        </div>
+                        <div class="flex items-center text-sm">
+                            {% if terminal.is_active %}
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                    <span class="w-1.5 h-1.5 bg-green-400 rounded-full mr-1.5"></span>
+                                    Active
+                                </span>
+                            {% else %}
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                    <span class="w-1.5 h-1.5 bg-red-400 rounded-full mr-1.5"></span>
+                                    Inactive
+                                </span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Warning Message -->
+    <div class="bg-red-50 border border-red-200 rounded-xl p-6 mb-6">
+        <div class="flex items-start">
+            <div class="flex-shrink-0">
+                <i class="fas fa-exclamation-triangle text-red-500 text-xl"></i>
+            </div>
+            <div class="ml-4">
+                <h4 class="text-lg font-medium text-red-900 mb-2">
+                    Warning: This action cannot be undone!
+                </h4>
+                <div class="text-sm text-red-800 space-y-2">
+                    <p>Deleting this terminal will:</p>
+                    <ul class="list-disc list-inside space-y-1 ml-4">
+                        <li>Permanently remove the terminal from the system</li>
+                        <li>Remove any route associations with this terminal</li>
+                        <li>Affect existing bookings that reference this terminal</li>
+                        <li>Remove all terminal-specific data and configurations</li>
+                    </ul>
+                    <div class="mt-4 p-3 bg-red-100 rounded-lg border border-red-200">
+                        <p class="font-medium text-red-900">
+                            <i class="fas fa-info-circle mr-2"></i>
+                            Consider deactivating instead of deleting if you want to preserve historical data.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirmation Form -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200">
+        <div class="p-6">
+            <form method="post" class="space-y-6">
+                {% csrf_token %}
+                
+                <!-- Confirmation Checkbox -->
+                <div class="flex items-start">
+                    <div class="flex items-center h-5">
+                        <input id="confirm-delete" name="confirm-delete" type="checkbox" required
+                               class="focus:ring-red-500 h-4 w-4 text-red-600 border-gray-300 rounded">
+                    </div>
+                    <div class="ml-3">
+                        <label for="confirm-delete" class="text-sm font-medium text-gray-700">
+                            I understand that this action is permanent and cannot be undone
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex items-center justify-between pt-6 border-t border-gray-200">
+                    <div class="flex items-center space-x-4">
+                        <a href="{% url 'accounts:admin_manage_terminals' %}" 
+                           class="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">
+                            <i class="fas fa-arrow-left mr-2"></i>Cancel
+                        </a>
+                        <a href="{% url 'terminals:detail' terminal.pk %}" 
+                           class="px-6 py-2 border border-blue-300 text-blue-700 rounded-lg hover:bg-blue-50 transition-colors">
+                            <i class="fas fa-eye mr-2"></i>View Terminal
+                        </a>
+                    </div>
+                    <button type="submit" id="delete-button" disabled
+                            class="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed">
+                        <i class="fas fa-trash mr-2"></i>Delete Terminal
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Alternative Actions -->
+    <div class="mt-6 text-center">
+        <p class="text-sm text-gray-600 mb-4">
+            Instead of deleting, you might want to:
+        </p>
+        <div class="flex justify-center space-x-4">
+            <button onclick="toggleTerminalStatus({{ terminal.id }}, {{ terminal.is_active|yesno:'true,false' }})"
+                    class="inline-flex items-center px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-sm">
+                {% if terminal.is_active %}
+                    <i class="fas fa-ban mr-2"></i>Deactivate Terminal
+                {% else %}
+                    <i class="fas fa-check mr-2"></i>Activate Terminal
+                {% endif %}
+            </button>
+            <a href="{% url 'terminals:update' terminal.pk %}" 
+               class="inline-flex items-center px-4 py-2 border border-blue-300 text-blue-700 rounded-lg hover:bg-blue-50 transition-colors text-sm">
+                <i class="fas fa-edit mr-2"></i>Edit Terminal
+            </a>
+        </div>
+    </div>
+</div>
+
+<script>
+// Enable delete button only when checkbox is checked
+document.getElementById('confirm-delete').addEventListener('change', function() {
+    const deleteButton = document.getElementById('delete-button');
+    deleteButton.disabled = !this.checked;
+});
+
+function toggleTerminalStatus(terminalId, isActive) {
+    if (confirm(`Are you sure you want to ${isActive ? 'deactivate' : 'activate'} this terminal instead of deleting it?`)) {
+        fetch(`/accounts/admin/terminals/${terminalId}/toggle-status/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                'Content-Type': 'application/json',
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                window.location.href = '{% url "accounts:admin_manage_terminals" %}';
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred. Please try again.');
+        });
+    }
+}
+</script>
+{% endblock %}

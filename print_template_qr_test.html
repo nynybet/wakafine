@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Print Template QR Test</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @media print {
+            * {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+                color-adjust: exact !important;
+            }
+            
+            body * {
+                visibility: hidden;
+            }
+            
+            .ticket-container, .ticket-container * {
+                visibility: visible !important;
+            }
+            
+            .ticket-container #qr-code,
+            .ticket-container #qr-code *,
+            .ticket-container .qr-code-container * {
+                visibility: visible !important;
+                display: block !important;
+                opacity: 1 !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+                color-adjust: exact !important;
+            }
+        }
+        
+        .qr-code-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 90px;
+        }
+        
+        #qr-code {
+            min-height: 90px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: white !important;
+            border-radius: 6px;
+            padding: 6px;
+        }
+        
+        .debug-info {
+            background: #f0f0f0;
+            padding: 10px;
+            margin: 10px 0;
+            font-family: monospace;
+            font-size: 12px;
+            border: 1px solid #ccc;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div class="max-w-md mx-auto bg-white p-4">
+        <h1 class="text-lg font-bold mb-4">Print Template QR Test</h1>
+        
+        <div class="debug-info" id="debug-log">
+            Debug log will appear here...
+        </div>
+        
+        <div class="ticket-container bg-white rounded-lg shadow-lg overflow-hidden">
+            <!-- Minimal ticket header -->
+            <div class="bg-gradient-to-r from-green-500 to-green-600 text-white p-2">
+                <h2 class="text-sm font-semibold">Test Digital Ticket</h2>
+                <p class="text-xs">PNR: TEST123</p>
+            </div>
+            
+            <!-- Ticket body with QR code -->
+            <div class="p-3">
+                <!-- QR Code Section - EXACT COPY FROM PRINT TEMPLATE -->
+                <div class="text-center border-t pt-3" style="-webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;">
+                    <div class="bg-white p-2 inline-block rounded-md border border-gray-300">
+                        <div id="qr-code" class="qr-code-container mb-1 flex justify-center" style="-webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;"></div>
+                        <p class="text-xs text-gray-600">Scan QR code for verification</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="mt-4 text-center">
+            <button onclick="generateQR()" class="bg-blue-500 text-white px-4 py-2 rounded mr-2">Generate QR</button>
+            <button onclick="window.print()" class="bg-green-500 text-white px-4 py-2 rounded mr-2">Print Test</button>
+            <button onclick="clearDebug()" class="bg-gray-500 text-white px-4 py-2 rounded">Clear Log</button>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+    <script>
+        let debugLog = document.getElementById('debug-log');
+        
+        function debug(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const color = type === 'error' ? 'red' : type === 'success' ? 'green' : 'blue';
+            console.log(message);
+            debugLog.innerHTML += `<div style="color: ${color}">[${timestamp}] ${message}</div>`;
+        }
+        
+        function clearDebug() {
+            debugLog.innerHTML = 'Debug log cleared...';
+        }
+        
+        function generateQR() {
+            debug('🚀 Starting QR generation (exact print template logic)...');
+            
+            // EXACT CODE FROM PRINT TEMPLATE
+            const bookingData = {
+                pnr: 'TEST123',
+                origin: 'Freetown',
+                destination: 'Bo',
+                date: 'Dec 30, 2024',
+                time: '08:00',
+                bus: 'Express Bus',
+                seat: 'A12',
+                passenger: 'Test User',
+                amount: 'Le 150000'
+            };
+            
+            debug('📊 Booking data prepared');
+            
+            const qrData = `WAKA-FINE BUS TICKET
+PNR: ${bookingData.pnr}
+Passenger: ${bookingData.passenger}
+Route: ${bookingData.origin} to ${bookingData.destination}
+Date: ${bookingData.date} at ${bookingData.time}
+Bus: ${bookingData.bus}
+Seat: ${bookingData.seat}
+Amount: ${bookingData.amount}`;
+
+            debug('📄 QR Data prepared');
+
+            const qrContainer = document.getElementById('qr-code');
+            if (!qrContainer) {
+                debug('❌ QR container not found - DOM element missing', 'error');
+                return;
+            }
+
+            debug('✅ QR container found');
+
+            // Enhanced fallback display (exact from template)
+            function showFallback(reason = 'Unknown') {
+                debug(`⚠️ Using fallback QR display. Reason: ${reason}`);
+                qrContainer.innerHTML = `
+                    <div class="qr-fallback" style="width: 110px; height: 110px; border: 3px solid #000; border-radius: 4px; display: flex; align-items: center; justify-content: center; background: white; margin: 0 auto; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important; visibility: visible !important; opacity: 1 !important;">
+                        <div style="text-align: center; color: #000;">
+                            <div style="font-size: 14px; font-weight: bold; margin-bottom: 6px;">📱 QR CODE</div>
+                            <div style="font-size: 12px; font-family: monospace; font-weight: bold;">${bookingData.pnr}</div>
+                            <div style="font-size: 10px; margin-top: 6px; opacity: 1;">SCAN TO VERIFY</div>
+                        </div>
+                    </div>`;
+            }
+
+            // Check if QRCode library is available (exact from template)
+            function attemptQRGeneration() {
+                if (typeof QRCode === 'undefined') {
+                    debug('⏳ QRCode library not yet available...');
+                    return false;
+                }
+
+                debug('✅ QRCode library is available, generating QR code...');
+
+                try {
+                    QRCode.toCanvas(qrData, {
+                        width: 130,
+                        height: 130,
+                        margin: 0,
+                        color: {
+                            dark: '#000000',
+                            light: '#ffffff'
+                        },
+                        errorCorrectionLevel: 'H'
+                    }, function (error, canvas) {
+                        if (error) {
+                            debug('❌ QR generation failed: ' + error, 'error');
+                            showFallback('QR generation error');
+                        } else {
+                            debug('✅ QR Code generated successfully!', 'success');
+                            
+                            // Style the canvas for visibility (exact from template)
+                            canvas.style.display = 'block';
+                            canvas.style.margin = '0 auto';
+                            canvas.style.borderRadius = '4px';
+                            canvas.style.border = '3px solid #000';
+                            canvas.style.background = 'white';
+                            canvas.style.padding = '2px';
+                            canvas.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.15)';
+                            canvas.style.webkitPrintColorAdjust = 'exact';
+                            canvas.style.printColorAdjust = 'exact';
+                            canvas.style.colorAdjust = 'exact';
+                            canvas.style.width = '110px';
+                            canvas.style.height = '110px';
+                            canvas.style.visibility = 'visible';
+                            canvas.style.opacity = '1';
+                            
+                            // Clear container and add the QR code
+                            qrContainer.innerHTML = '';
+                            qrContainer.appendChild(canvas);
+                            
+                            debug('🎯 QR Code successfully added to DOM', 'success');
+                        }
+                    });
+                    
+                    return true;
+                } catch (e) {
+                    debug('❌ QR generation exception: ' + e, 'error');
+                    showFallback('QR generation exception');
+                    return true;
+                }
+            }
+
+            // Try to generate QR code with retries (exact from template)
+            let attempts = 0;
+            const maxAttempts = 20;
+            
+            function tryGenerate() {
+                attempts++;
+                debug(`🔄 QR generation attempt ${attempts}/${maxAttempts}`);
+                
+                if (attemptQRGeneration()) {
+                    return; // Successfully generated or failed definitively
+                }
+                
+                if (attempts < maxAttempts) {
+                    setTimeout(tryGenerate, 150);
+                } else {
+                    debug('❌ QRCode library failed to load after all attempts', 'error');
+                    showFallback('Library loading timeout');
+                }
+            }
+
+            // Start the generation process
+            tryGenerate();
+        }
+        
+        // Auto-generate when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            debug('📱 Print Template Test loaded');
+            setTimeout(generateQR, 500);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>Debug Template Test</h1>
+
+<p>Context variables test:</p>
+<ul>
+    <li>Route exists: {% if route %}YES - {{ route }}{% else %}NO{% endif %}</li>
+    <li>Bus exists: {% if bus %}YES - {{ bus }}{% else %}NO{% endif %}</li>
+    <li>Seats exists: {% if seats %}YES - {{ seats|length }} seats{% else %}NO{% endif %}</li>
+    <li>Seats JSON exists: {% if seats_json %}YES - {{ seats_json|length }} chars{% else %}NO{% endif %}</li>
+</ul>
+
+<h2>Raw context debug:</h2>
+<pre>
+Route: {{ route }}
+Bus: {{ bus }}
+Seats count: {{ seats|length }}
+Seats JSON length: {{ seats_json|length }}
+Travel date: {{ travel_date }}
+</pre>
+
+<h2>JavaScript test:</h2>
+<script>
+console.log('Debug template loaded');
+{% if seats_json %}
+console.log('Seats JSON found in context:', {{ seats_json|safe }});
+{% else %}
+console.log('No seats JSON in context');
+{% endif %}
+
+{% if route %}
+console.log('Route found:', '{{ route }}', 'Price:', {{ route.price }});
+{% else %}
+console.log('No route in context');
+{% endif %}
+</script>
+
+{% endblock %}

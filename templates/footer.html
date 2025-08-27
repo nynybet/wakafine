@@ -1,0 +1,45 @@
+{% load static %}
+<footer class="bg-gray-800 text-white mt-20">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+            <div class="col-span-1 md:col-span-2">
+                <div class="flex items-center mb-4">
+                    <i class="fas fa-bus text-2xl text-accent mr-2"></i>
+                    <span class="text-xl font-bold">Waka-Fine Bus</span>
+                </div>
+                <p class="text-gray-300 mb-4">Your trusted partner for comfortable and safe travel across Freetown, Sierra Leone.</p>
+                <div class="flex space-x-4">
+                    <a href="#" class="text-gray-300 hover:text-accent transition-colors duration-200">
+                        <i class="fab fa-facebook-f"></i>
+                    </a>
+                    <a href="#" class="text-gray-300 hover:text-accent transition-colors duration-200">
+                        <i class="fab fa-twitter"></i>
+                    </a>
+                    <a href="#" class="text-gray-300 hover:text-accent transition-colors duration-200">
+                        <i class="fab fa-instagram"></i>
+                    </a>
+                </div>
+            </div>
+            <div>
+                <h3 class="text-lg font-semibold mb-4">Quick Links</h3>
+                <ul class="space-y-2">
+                    <li><a href="{% url 'routes:search' %}" class="text-gray-300 hover:text-accent transition-colors duration-200">Book a Trip</a></li>
+                    <li><a href="{% url 'bookings:search' %}" class="text-gray-300 hover:text-accent transition-colors duration-200">Track Booking</a></li>
+                    <li><a href="#" class="text-gray-300 hover:text-accent transition-colors duration-200">Contact Us</a></li>
+                </ul>
+            </div>
+            <div>
+                <h3 class="text-lg font-semibold mb-4">Contact Info</h3>
+                <div class="space-y-2 text-gray-300">
+                    <p><i class="fas fa-map-marker-alt mr-2"></i>Freetown, Sierra Leone</p>
+                    <p><i class="fas fa-phone mr-2"></i>+232 785 45477</p>
+                    <p><i class="fas fa-envelope mr-2"></i>info@wakafine.sl</p>
+                </div>
+            </div>
+        </div>
+        <hr class="border-gray-700 my-8">
+        <div class="text-center text-gray-300">
+            <p>&copy; {% now "Y" %} Waka-Fine Bus. All rights reserved.</p>
+        </div>
+    </div>
+</footer>

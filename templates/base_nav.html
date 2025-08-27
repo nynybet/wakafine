@@ -1,0 +1,71 @@
+\
+{% load static %}
+<!-- Navigation -->
+<nav class="bg-white/80 backdrop-blur-md shadow-lg fixed top-0 left-0 right-0 z-40 border-b border-blue-100 h-16"> {# Changed z-50 to z-40 #} <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between h-16">
+            <div class="flex items-center">
+                <div class="flex-shrink-0 flex items-center">
+                    <i class="fas fa-bus text-3xl text-primary mr-2"></i>
+                    <span class="text-2xl font-bold text-gray-800">Waka-Fine</span>
+                    <span class="text-sm text-gray-500 ml-2">Bus</span>
+                </div>
+                <div class="hidden md:ml-10 md:flex md:space-x-8">
+                    <a href="{% url 'home' %}" class="text-gray-700 hover:text-primary px-3 py-2 text-sm font-medium transition-colors duration-200">
+                        <i class="fas fa-home mr-1"></i>Home
+                    </a>
+                    <a href="{% url 'routes:search' %}" class="text-gray-700 hover:text-primary px-3 py-2 text-sm font-medium transition-colors duration-200">
+                        <i class="fas fa-route mr-1"></i>Routes
+                    </a>
+                    {% if user.is_authenticated %}
+                        <a href="{% url 'bookings:list' %}" class="text-gray-700 hover:text-primary px-3 py-2 text-sm font-medium transition-colors duration-200">
+                            <i class="fas fa-ticket-alt mr-1"></i>My Bookings
+                        </a>
+                        <a href="{% url 'accounts:dashboard' %}" class="text-gray-700 hover:text-primary px-3 py-2 text-sm font-medium transition-colors duration-200">
+                            <i class="fas fa-tachometer-alt mr-1"></i>Dashboard
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="flex items-center space-x-4">
+                {% if user.is_authenticated %}
+                    <div class="relative" x-data="{ open: false }">
+                        <button @click="open = !open" class="flex items-center text-sm text-gray-700 hover:text-primary focus:outline-none transition-colors duration-200">
+                            <i class="fas fa-user-circle text-xl mr-2"></i>
+                            <span class="hidden md:block">{{ user.get_full_name|default:user.username }}</span>
+                            <i class="fas fa-chevron-down ml-1 text-xs"></i>
+                        </button>
+                        <div x-show="open" @click.away="open = false" 
+                             x-transition:enter="transition ease-out duration-100"
+                             x-transition:enter-start="transform opacity-0 scale-95"
+                             x-transition:enter-end="transform opacity-100 scale-100"
+                             x-transition:leave="transition ease-in duration-75"
+                             x-transition:leave-start="transform opacity-100 scale-100"
+                             x-transition:leave-end="transform opacity-0 scale-95"
+                             class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50" {# Ensured dropdown has higher z-index #}
+                             x-cloak>
+                            <a href="{% url 'accounts:profile' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                <i class="fas fa-user mr-2"></i>Profile
+                            </a>
+                            <hr class="my-1">
+                            <form method="post" action="{% url 'accounts:logout' %}" class="block">
+                                {% csrf_token %}
+                                <button type="submit" class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                    <i class="fas fa-sign-out-alt mr-2"></i>Logout
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                {% else %}
+                    <a href="{% url 'accounts:login' %}" class="text-gray-700 hover:text-primary px-3 py-2 text-sm font-medium transition-colors duration-200">
+                        <i class="fas fa-sign-in-alt mr-1"></i>Login
+                    </a>
+                    <a href="{% url 'accounts:register' %}" class="bg-primary text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors duration-200">
+                        <i class="fas fa-user-plus mr-1"></i>Register
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</nav>
+<script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>

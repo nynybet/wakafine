@@ -1,0 +1,159 @@
+{% extends 'base.html' %}
+
+{% block title %}My Bookings - Waka-Fine Bus{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Header -->
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-800">My Bookings</h1>
+            <p class="text-gray-600">View and manage your travel bookings</p>
+        </div>
+        
+        <!-- Bookings List -->
+        {% if bookings %}
+            <div class="space-y-6">
+                {% for booking in bookings %}
+                    <div class="bg-white rounded-2xl shadow-lg p-6 border border-gray-100 hover:shadow-xl transition-all duration-300">
+                        <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 items-center">
+                            <!-- Route Info -->
+                            <div class="lg:col-span-2">
+                                <div class="flex items-center justify-between mb-4">
+                                    <div class="flex items-center">
+                                        <div class="text-center">
+                                            <p class="text-lg font-semibold text-gray-800">{{ booking.route.get_origin_display }}</p>
+                                            <p class="text-sm text-gray-500">{{ booking.route.departure_time|time:"H:i" }}</p>
+                                        </div>
+                                        <div class="flex-1 mx-4">
+                                            <div class="border-t-2 border-dashed border-gray-300 relative">
+                                                <i class="fas fa-bus absolute -top-3 left-1/2 transform -translate-x-1/2 bg-white px-2 text-primary"></i>
+                                            </div>
+                                        </div>
+                                        <div class="text-center">
+                                            <p class="text-lg font-semibold text-gray-800">{{ booking.route.get_destination_display }}</p>
+                                            <p class="text-sm text-gray-500">{{ booking.route.arrival_time|time:"H:i" }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="flex items-center text-sm text-gray-600 space-x-4">
+                                    <span><i class="fas fa-calendar mr-1"></i>{{ booking.travel_date|date:"M d, Y" }}</span>
+                                    <span><i class="fas fa-bus mr-1"></i>{{ booking.bus.bus_name }}</span>
+                                    <span><i class="fas fa-chair mr-1"></i>Seat: {{ booking.seat.seat_number|default:"Assigned" }}</span>
+                                </div>
+                            </div>
+                            
+                            <!-- Booking Details -->
+                            <div class="text-center">
+                                <p class="text-sm text-gray-500 mb-1">PNR Code</p>
+                                <p class="text-lg font-bold text-primary">{{ booking.pnr_code }}</p>
+                                <span class="px-3 py-1 rounded-full text-xs font-semibold {% if booking.status == 'confirmed' %}bg-green-100 text-green-800{% elif booking.status == 'pending' %}bg-yellow-100 text-yellow-800{% else %}bg-red-100 text-red-800{% endif %} mt-2 inline-block">
+                                    {{ booking.get_status_display }}
+                                </span>
+                            </div>
+                            
+                            <!-- Actions -->
+                            <div class="text-center lg:text-right">
+                                <div class="space-y-2">
+                                    <p class="text-lg font-bold text-gray-800">Le {{ booking.amount_paid|floatformat:0 }}</p>
+                                    <div class="flex flex-col space-y-2">
+                                        <a href="{% url 'bookings:ticket' booking.pk %}" class="inline-block bg-primary text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-blue-700 transition-all duration-300">
+                                            <i class="fas fa-ticket-alt mr-1"></i>View Ticket
+                                        </a>
+                                        {% if booking.status == 'confirmed' %}
+                                            <button onclick="autoprint({{ booking.id }})" class="inline-block bg-gray-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-gray-700 transition-all duration-300">
+                                                <i class="fas fa-print mr-1"></i>Print Ticket
+                                            </button>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+            
+            <!-- Pagination would go here if needed -->
+            
+        {% else %}
+            <div class="text-center py-12">
+                <i class="fas fa-ticket-alt text-6xl text-gray-300 mb-4"></i>
+                <h3 class="text-xl font-semibold text-gray-600 mb-2">No bookings yet</h3>
+                <p class="text-gray-500 mb-6">Start your journey by booking your first trip</p>
+                <a href="{% url 'routes:search' %}" class="inline-block bg-primary text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-all duration-300 transform hover:scale-105">
+                    <i class="fas fa-search mr-2"></i>Search Routes
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+function autoprint(ticketId) {
+    console.log('🖨️ Print request for ticket ID:', ticketId);
+    
+    // Validate ticket ID
+    if (!ticketId) {
+        console.error('❌ No ticket ID provided');
+        alert('Error: No ticket ID provided');
+        return;
+    }
+    
+    const printUrl = `/bookings/${ticketId}/ticket/print/?autoprint=true`;
+    console.log('🔗 Opening print URL:', printUrl);
+    
+    // Open print view in a new window and trigger print
+    const printWindow = window.open(
+        printUrl, 
+        '_blank',
+        'width=800,height=600,scrollbars=yes,resizable=yes'
+    );
+    
+    // Check if window opened successfully
+    if (!printWindow) {
+        console.error('❌ Failed to open print window - popup blocked?');
+        alert('Print window was blocked. Please allow popups and try again.');
+        return;
+    }
+    
+    console.log('✅ Print window opened successfully');
+    
+    // Focus the new window
+    printWindow.focus();
+    
+    // Handle window events
+    let windowClosed = false;
+    
+    // Close the window after printing
+    printWindow.addEventListener('afterprint', function() {
+        console.log('📄 Print dialog closed');
+        if (!windowClosed) {
+            setTimeout(() => {
+                if (!printWindow.closed) {
+                    printWindow.close();
+                    windowClosed = true;
+                }
+            }, 1000);
+        }
+    });
+    
+    // Fallback: close window after timeout
+    setTimeout(() => {
+        if (!windowClosed && !printWindow.closed) {
+            console.log('⏰ Closing print window (timeout)');
+            printWindow.close();
+            windowClosed = true;
+        }
+    }, 15000); // Increased timeout for QR code generation
+    
+    // Handle window closed manually
+    const checkClosed = setInterval(() => {
+        if (printWindow.closed) {
+            console.log('🗑️ Print window closed');
+            windowClosed = true;
+            clearInterval(checkClosed);
+        }
+    }, 1000);
+}
+</script>
+{% endblock %}

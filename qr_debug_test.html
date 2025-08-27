@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Code Debug Test</title>    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+</head>
+<body>
+    <h1>QR Code Debug Test</h1>
+    <div id="debug-output"></div>
+    <div id="qr-code" style="width: 200px; height: 200px; border: 2px solid red; margin: 20px auto;"></div>
+    
+    <script>
+        function debugLog(message) {
+            console.log(message);
+            const debugDiv = document.getElementById('debug-output');
+            debugDiv.innerHTML += '<p>' + message + '</p>';
+        }
+        
+        debugLog('Starting QR Code Debug...');
+        
+        // Check if QRCode library is loaded
+        if (typeof QRCode !== 'undefined') {
+            debugLog('✅ QRCode library loaded successfully');
+            
+            try {
+                const qrContainer = document.getElementById('qr-code');
+                if (qrContainer) {
+                    debugLog('✅ Container found');
+                    
+                    const testData = 'WAKA-FINE-TEST-12345';
+                    debugLog('📝 Generating QR for: ' + testData);
+                    
+                    const qr = new QRCode(qrContainer, {
+                        text: testData,
+                        width: 150,
+                        height: 150,
+                        colorDark: '#000000',
+                        colorLight: '#ffffff'
+                    });
+                    
+                    debugLog('✅ QR Code generation command executed');
+                    
+                } else {
+                    debugLog('❌ Container not found');
+                }
+            } catch (error) {
+                debugLog('❌ Error generating QR: ' + error.message);
+            }
+        } else {
+            debugLog('❌ QRCode library not loaded');
+        }
+    </script>
+</body>
+</html>

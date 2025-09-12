@@ -23,4 +23,6 @@ urlpatterns = [
     ),  # Alias for return seats
     path("route-buses/", views.get_route_buses_ajax, name="route_buses"),
     path("debug/", views.BookingDebugView.as_view(), name="debug"),
+    path("test/dashboard/", views.TestDashboardView.as_view(), name="test_dashboard"),
+    path("simulate-buses/", views.BusSimulationView.as_view(), name="bus-simulation"),
 ]

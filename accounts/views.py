@@ -1,3 +1,5 @@
+from datetime import datetime
+from multiprocessing import context
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, authenticate
 from django.contrib.auth.views import (
@@ -100,7 +102,93 @@ class DashboardView(LoginRequiredMixin, TemplateView):
             context["active_routes"] = Route.objects.filter(is_active=True).count()
             context["active_buses"] = Bus.objects.filter(is_active=True).count()
             context["recent_bookings"] = Booking.objects.order_by("-created_at")[:10]
+            today = datetime.now().date()
+            month_start = today.replace(day=1)
+            last_30 = today - datetime.timedelta(days=30)
 
+        # --- KPI cards ---
+            context["kpis"] = {
+            "total_bookings_today": Booking.objects.filter(travel_date__date=today).count(),
+            "total_bookings_month": Booking.objects.filter(travel_date__date__gte=month_start).count(),
+            "total_revenue_today": Booking.objects.filter(travel_date__date=today)
+                                .aggregate(Sum("amount_paid"))["amount_paid__sum"] or 0,
+            "total_revenue_month": Booking.objects.filter(travel_date__date__gte=month_start)
+                                .aggregate(Sum("amount_paid"))["amount_paid__sum"] or 0,
+            "active_routes": Route.objects.count(),
+            "total_vehicles": Bus.objects.count(),
+        }
+
+        # --- Chart: Bookings over time (last 30 days) ---
+            bookings_qs = (
+            Booking.objects.filter(travel_date__date__gte=last_30)
+            .extra(select={"day": "date(travel_date)"})
+            .values("day")
+            .annotate(c=Count("id"))
+            .order_by("day")
+        )
+            context["bookings_over_time"] = {
+            "labels": [b["day"] for b in bookings_qs],
+            "data": [b["c"] for b in bookings_qs],
+        }
+
+        # --- Chart: Revenue by route (top 10) ---
+            revenue_qs = (
+            Booking.objects.values("route__destination")
+            .annotate(total=Sum("amount_paid"))
+            .order_by("-total")[:10]
+        )
+            context["revenue_by_route"] = {
+            "labels": [r["route__destination"] for r in revenue_qs],
+            "data": [r["total"] or 0 for r in revenue_qs],
+        }
+
+        # --- Chart: Popular routes (by bookings, top 10) ---
+            popular_qs = (
+            Booking.objects.values("route__destination")
+            .annotate(c=Count("id"))
+            .order_by("-c")[:10]
+        )
+            context["popular_routes"] = {
+            "labels": [r["route__destination"] for r in popular_qs],
+            "data": [r["c"] for r in popular_qs],
+        }
+
+        # --- Bus-related charts ---
+            buses = Bus.objects.all()
+
+        # Vehicle Utilization (trips per bus)
+            vehicle_util_qs = (
+            Booking.objects.values("bus__bus_name")
+            .annotate(trips=Count("id"))
+            .order_by("-trips")
+        )
+            context["vehicle_utilization"] = {
+            "labels": [v["bus__bus_name"] for v in vehicle_util_qs],
+            "data": [v["trips"] for v in vehicle_util_qs],
+        }
+        # --- Chart: Bookings per Bus (last 30 days, confirmed only) ---
+            bus_labels = []
+            bus_data = []
+            for bus in buses:
+                bookings_count = Booking.objects.filter(
+                bus=bus,
+                travel_date__date__gte=last_30,
+                status="confirmed"  # Only confirmed bookings
+                ).count()
+                bus_labels.append(f"{bus.bus_name} ({bus.bus_number})")
+                bus_data.append(bookings_count)
+
+            context["bookings_per_bus"] = {"labels": bus_labels, "data": bus_data}
+
+# --- Chart: Available seats per Bus today ---
+            bus_labels_seats = []
+            available_seats_data = []
+            for bus in buses:
+                bus_labels_seats.append(f"{bus.bus_name} ({bus.bus_number})")
+    # Use the property which already filters by confirmed bookings
+                available_seats_data.append(bus.available_seats)
+
+            context["available_seats_per_bus"] = {"labels": bus_labels_seats, "data": available_seats_data}
         elif user.is_staff_member:
             from bookings.models import Booking
             from django.utils import timezone

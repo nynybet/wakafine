@@ -1,3 +1,4 @@
+from multiprocessing import context
 from django.shortcuts import render, get_object_or_404, redirect
 from django.views.generic import ListView, DetailView, CreateView, TemplateView
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -22,6 +23,8 @@ import base64
 from qrcode.image.styledpil import StyledPilImage
 from qrcode.image.styles.colormasks import SolidFillColorMask
 from PIL import Image
+
+import buses
 from .models import Booking
 from .forms import BookingForm, BookingSearchForm
 from sierra_leone_validator import SierraLeoneMobileValidator
@@ -1065,4 +1068,77 @@ class BookingDebugView(TemplateView):
         else:
             print("DEBUG: No bus_id provided")
 
+        return context
+
+
+
+
+
+
+
+
+from django.db.models import Count, Sum
+from django.utils.timezone import now
+from django.views.generic import TemplateView
+from .models import Booking
+from routes.models import Route
+from buses.models import Bus
+import datetime
+
+class TestDashboardView(LoginRequiredMixin, TemplateView):
+    template_name = "bookings/test_dashboard.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        
+        
+        
+        return context
+
+
+# bookings/views.py
+from django.views.generic import TemplateView
+
+class BusSimulationView(TemplateView):
+    template_name = "bookings/bus_simulation.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # Example 5 routes with start/end coordinates + duration (in seconds)
+        routes = [
+            {
+                "bus": "ADC 234",
+                "start": {"lat": 8.4653, "lng": -13.2894},  # Shell
+                "end": {"lat": 8.4321, "lng": -13.2800},    # Lumley
+                "duration": 600
+            },
+            {
+                "bus": "AVC 231",
+                "start": {"lat": 8.3340, "lng": -13.0700},  # Waterloo
+                "end": {"lat": 8.4825, "lng": -13.1964},    # Kissy
+                "duration": 625
+            },
+            {
+                "bus": "ACK 765",
+                "start": {"lat": 8.3919, "lng": -13.1704},  # Jui
+                "end": {"lat": 8.4321, "lng": -13.2800},    # Lumley
+                "duration": 630
+            },
+            {
+                "bus": "AEH 897",
+                "start": {"lat": 8.4840, "lng": -13.2356},  # Central
+                "end": {"lat": 8.4000, "lng": -13.2400},    # Regent
+                "duration": 615
+            },
+            {
+                "bus": "ATY 712",
+                "start": {"lat": 8.4900, "lng": -13.2800},  # Aberdeen
+                "end": {"lat": 8.4330, "lng": -13.1500},    # Calaba Town
+                "duration": 640
+            },
+        ]
+
+        context["routes"] = routes
         return context

@@ -3,6 +3,24 @@
 {% block page_title %}Dashboard{% endblock %}
 
 {% block content %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+  /* Ensure all charts have a visible area */
+  .charts canvas {
+    width: 100% !important;
+    height: 300px !important; /* you can adjust to 400px if you want taller charts */
+  }
+
+  /* Optional: add spacing around each chart card */
+  .charts .card {
+    background: #fff;
+    padding: 1rem;
+    border-radius: 0.75rem;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    margin-bottom: 1.5rem;
+  }
+</style>
+
 <!-- Stats Overview -->
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
     <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
@@ -38,6 +56,19 @@
                 <p class="text-sm text-gray-600">Today's Bookings</p>
                 <p class="text-2xl font-bold text-gray-900">{{ today_bookings }}</p>
             </div>
+           
+        </div>
+    </div>
+    <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+        <div class="flex items-center">
+            <div class="p-3 bg-yellow-100 rounded-lg">
+                <i class="fas fa-calendar-day text-yellow-600 text-xl"></i>
+            </div>
+            <div class="ml-4">
+                <p class="text-sm text-gray-600">Bookings This Month</p>
+                <p class="text-2xl font-bold text-gray-900">{{ kpis.total_bookings_month }}</p>
+            </div>
+           
         </div>
     </div>
     
@@ -50,7 +81,52 @@
                 <p class="text-sm text-gray-600">Total Revenue</p>
                 <p class="text-2xl font-bold text-gray-900">Le {{ total_revenue|floatformat:0 }}</p>
             </div>
+            
         </div>
+        
+    </div>
+
+     <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+        <div class="flex items-center">
+            <div class="p-3 bg-purple-100 rounded-lg">
+                <i class="fas fa-dollar-sign text-purple-600 text-xl"></i>
+            </div>
+            <div class="ml-4">
+                <p class="text-sm text-gray-600">Revenue Today</p>
+                <p class="text-2xl font-bold text-gray-900">Le {{ kpis.total_revenue_today|floatformat:0 }}</p>
+            </div>
+            
+        </div>
+        
+    </div>
+
+     <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+        <div class="flex items-center">
+            <div class="p-3 bg-purple-100 rounded-lg">
+                <i class="fas fa-dollar-sign text-purple-600 text-xl"></i>
+            </div>
+            <div class="ml-4">
+                <p class="text-sm text-gray-600">Revenue This Month</p>
+                <p class="text-2xl font-bold text-gray-900">Le {{ kpis.total_revenue_month|floatformat:0 }}</p>
+            </div>
+            
+        </div>
+        
+    </div>
+     <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+        <div class="flex items-center">
+            <div class="p-3 bg-purple-100 rounded-lg">
+                <i class="fas fa-dollar-sign text-purple-600 text-xl"></i>
+            </div>
+            <div class="ml-4">
+                <p class="text-sm text-gray-600">Top Route Earner</p>
+                <p class="text-2xl font-bold text-gray-900">{% if revenue_by_route.labels and revenue_by_route.data %}
+            {{ revenue_by_route.labels.0 }}  Le{{ revenue_by_route.data.0 }}
+          {% else %}-{% endif %}</p>
+            </div>
+            
+        </div>
+        
     </div>
 </div>
 
@@ -104,6 +180,45 @@
         </div>
     </div>
 </div>
+
+
+<!-- CHARTS -->
+    <!-- Bus-related Charts: 2 rows x 2 columns -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+  <!-- Bookings per Bus -->
+  <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+    <h3 class="text-lg font-semibold mb-4">Bookings per Bus (Last 30 days)</h3>
+    <canvas id="bookingsPerBusChart" width="400" height="200"></canvas>
+  </div>
+
+  <!-- Available Seats per Bus -->
+  <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+    <h3 class="text-lg font-semibold mb-4">Available Seats per Bus (Today)</h3>
+    <canvas id="availableSeatsPerBusChart" width="400" height="200"></canvas>
+  </div>
+
+  <!-- Vehicle Utilization (Trips per Bus) -->
+  <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+    <h3 class="text-lg font-semibold mb-4">Vehicle Utilization (Trips per Bus)</h3>
+    <canvas id="vehicleUtil" width="400" height="200"></canvas>
+  </div>
+
+  <!-- Route Popularity -->
+  <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+    <h3 class="text-lg font-semibold mb-4">Route Popularity (Top 10)</h3>
+    <canvas id="routePopularity" width="400" height="200"></canvas>
+  </div>
+</div>
+
+
+
+
+
+
+
+
+
+
 
 <!-- Recent Bookings -->
 <div class="bg-white rounded-xl shadow-sm border border-gray-200">
@@ -169,4 +284,127 @@
         </div>
     {% endif %}
 </div>
+
+
+  
+
+ <!-- Chart.js logic -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  // --- Bookings per Bus ---
+  const bookingsPerBusCtx = document.getElementById("bookingsPerBusChart").getContext("2d");
+  new Chart(bookingsPerBusCtx, {
+    type: "bar",
+    data: {
+      labels: {{ bookings_per_bus.labels|safe }},
+      datasets: [{
+        label: "Bookings",
+        data: {{ bookings_per_bus.data|safe }},
+        backgroundColor: "rgba(54, 162, 235, 0.6)",
+        borderColor: "rgba(54, 162, 235, 1)",
+        borderWidth: 1
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { display: false },
+        title: { display: true, text: "Bookings per Bus" }
+      },
+      scales: {
+        y: { beginAtZero: true }
+      }
+    }
+  });
+
+  // --- Available Seats per Bus ---
+  const availableSeatsCtx = document.getElementById("availableSeatsPerBusChart").getContext("2d");
+  new Chart(availableSeatsCtx, {
+    type: "bar",
+    data: {
+      labels: {{ available_seats_per_bus.labels|safe }},
+      datasets: [{
+        label: "Available Seats",
+        data: {{ available_seats_per_bus.data|safe }},
+        backgroundColor: "rgba(75, 192, 192, 0.6)",
+        borderColor: "rgba(75, 192, 192, 1)",
+        borderWidth: 1
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { display: false },
+        title: { display: true, text: "Available Seats per Bus" }
+      },
+      scales: {
+        y: { beginAtZero: true }
+      }
+    }
+  });
+
+  // --- Vehicle Utilization (Trips per Bus) ---
+  const vehicleUtilCtx = document.getElementById("vehicleUtil").getContext("2d");
+  new Chart(vehicleUtilCtx, {
+    type: "bar",
+    data: {
+      labels: {{ vehicle_utilization.labels|safe }},
+      datasets: [{
+        label: "Trips",
+        data: {{ vehicle_utilization.data|safe }},
+        backgroundColor: "rgba(255, 159, 64, 0.6)",
+        borderColor: "rgba(255, 159, 64, 1)",
+        borderWidth: 1
+      }]
+    },
+    options: {
+      indexAxis: "y",
+      responsive: true,
+      plugins: {
+        legend: { display: false },
+        title: { display: true, text: "Vehicle Utilization (Trips per Bus)" }
+      },
+      scales: {
+        x: { beginAtZero: true }
+      }
+    }
+  });
+
+  // --- Route Popularity (Top 10) ---
+  const routePopularityCtx = document.getElementById("routePopularity").getContext("2d");
+  new Chart(routePopularityCtx, {
+    type: "doughnut",
+    data: {
+      labels: {{ popular_routes.labels|safe }},
+      datasets: [{
+        label: "Bookings",
+        data: {{ popular_routes.data|safe }},
+        backgroundColor: [
+          "rgba(255, 99, 132, 0.6)",
+          "rgba(54, 162, 235, 0.6)",
+          "rgba(255, 206, 86, 0.6)",
+          "rgba(75, 192, 192, 0.6)",
+          "rgba(153, 102, 255, 0.6)",
+          "rgba(255, 159, 64, 0.6)",
+          "rgba(199, 199, 199, 0.6)",
+          "rgba(83, 102, 255, 0.6)",
+          "rgba(255, 99, 71, 0.6)",
+          "rgba(60, 179, 113, 0.6)"
+        ]
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { position: "bottom" },
+        title: { display: true, text: "Route Popularity (Top 10)" }
+      }
+    }
+  });
+</script>
+
+
+
 {% endblock %}
+
+  

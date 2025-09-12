@@ -1,0 +1,85 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Bus Simulation</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <style>
+    body, html {
+      height: 100%;
+      margin: 0;
+      display: flex;
+      justify-content: center;   /* Center horizontally */
+      align-items: center;       /* Center vertically */
+      background: #f4f4f4;       /* light background */
+    }
+
+    #map {
+      height: 80vh;   /* map height */
+      width: 80vw;    /* map width */
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3); /* nice shadow */
+      border-radius: 10px; /* rounded corners */
+    }
+
+    .bus-label {
+      background: white;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div id="map"></div>
+
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script>
+    // Initialize map
+    const map = L.map('map').setView([8.4653, -13.2894], 12);
+
+    // Add OpenStreetMap tiles
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+
+    // Get routes from Django context
+    const routes = {{ routes|safe }};
+
+    // Function to animate bus
+    function animateBus(route, color) {
+      const start = [route.start.lat, route.start.lng];
+      const end = [route.end.lat, route.end.lng];
+
+      // Draw line between start and end
+      L.polyline([start, end], {color: color}).addTo(map);
+
+      // Create marker
+      const marker = L.circleMarker(start, {radius: 8, color: color, fillColor: color, fillOpacity: 1}).addTo(map);
+      marker.bindTooltip(route.bus, {permanent: true, direction: 'right', className: 'bus-label'}).openTooltip();
+
+      const steps = 200;  // smoother animation
+      let i = 0;
+
+      function move() {
+        if (i > steps) return;
+        const lat = start[0] + (end[0] - start[0]) * (i / steps);
+        const lng = start[1] + (end[1] - start[1]) * (i / steps);
+        marker.setLatLng([lat, lng]);
+        i++;
+        setTimeout(move, (route.duration * 1000) / steps);
+      }
+      move();
+    }
+
+    // Different colors for each bus
+    const colors = ["red", "blue", "green", "orange", "purple"];
+
+    // Animate all routes
+    routes.forEach((route, index) => {
+      animateBus(route, colors[index % colors.length]);
+    });
+  </script>
+</body>
+</html>

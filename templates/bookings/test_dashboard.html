@@ -1,0 +1,216 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Transport Admin Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="{% static 'dashboard/dashboard.css' %}" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    /* Simple, clean layout */
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; margin: 0; background: #f7f7f8; }
+    .wrap { max-width: 1200px; margin: 24px auto; padding: 0 16px; }
+    .grid { display: grid; gap: 16px; }
+    .kpis { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .card { background: #fff; border-radius: 12px; padding: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+    .kpi-title { font-size: 12px; color: #666; text-transform: uppercase; letter-spacing: .06em; }
+    .kpi-value { font-size: 28px; font-weight: 700; margin-top: 4px; }
+    .section-title { font-weight: 700; font-size: 18px; margin: 8px 0; }
+    .charts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    canvas { width: 100% !important; height: 340px !important; }
+    @media (max-width: 900px) {
+      .kpis, .charts { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Dashboard</h1>
+
+    <!-- KPI CARDS -->
+    <div class="grid kpis">
+      <div class="card">
+        <div class="kpi-title">Bookings Today</div>
+        <div class="kpi-value">{{ kpis.total_bookings_today }}</div>
+      </div>
+      <div class="card">
+        <div class="kpi-title">Bookings This Month</div>
+        <div class="kpi-value">{{ kpis.total_bookings_month }}</div>
+      </div>
+      <div class="card">
+        <div class="kpi-title">Revenue Today</div>
+        <div class="kpi-value">{{ kpis.total_revenue_today }}</div>
+      </div>
+      <div class="card">
+        <div class="kpi-title">Revenue This Month</div>
+        <div class="kpi-value">{{ kpis.total_revenue_month }}</div>
+      </div>
+    </div>
+
+    <div class="grid kpis" style="margin-top:16px;">
+      <div class="card">
+        <div class="kpi-title">Active Routes</div>
+        <div class="kpi-value">{{ kpis.active_routes }}</div>
+      </div>
+      <div class="card">
+        <div class="kpi-title">Total Vehicles</div>
+        <div class="kpi-value">{{ kpis.total_vehicles }}</div>
+      </div>
+      <div class="card">
+        <div class="kpi-title">Top Route (Bookings)</div>
+        <div class="kpi-value">
+          {% if popular_routes.labels and popular_routes.data %}
+            {{ popular_routes.labels.0 }} ({{ popular_routes.data.0 }})
+          {% else %}-{% endif %}
+        </div>
+      </div>
+      <div class="card">
+        <div class="kpi-title">Top Earner Route</div>
+        <div class="kpi-value">
+          {% if revenue_by_route.labels and revenue_by_route.data %}
+            {{ revenue_by_route.labels.0 }} ({{ revenue_by_route.data.0 }})
+          {% else %}-{% endif %}
+        </div>
+      </div>
+    </div>
+
+    <!-- CHARTS -->
+    <h2 class="section-title">Charts</h2>
+    <div class="grid charts">
+      <div class="card">
+        <h3 class="section-title">Bookings Over Time (Last 30 days)</h3>
+        <canvas id="bookingsLine"></canvas>
+      </div>
+
+      <div class="card">
+        <h3 class="section-title">Revenue by Route (Top 10)</h3>
+        <canvas id="revenueByRoute"></canvas>
+      </div>
+
+      <div class="card">
+        <h3 class="section-title">Route Popularity (Top 10)</h3>
+        <canvas id="routePopularity"></canvas>
+      </div>
+
+      <div class="card">
+        <h3 class="section-title">Vehicle Utilization (Trips per Bus)</h3>
+        <canvas id="vehicleUtil"></canvas>
+      </div>
+
+      <div class="card">
+        <h3 class="section-title">Available seats per Bus</h3>
+        <canvas id="availableSeatsPerBusChart"></canvas>
+      </div>
+
+      <div class="card">
+        <h3 class="section-title">Bookings per Bus</h3>
+        <canvas id="bookingsPerBusChart"></canvas>
+      </div>
+    </div>
+
+
+    
+  </div>
+
+  <!-- Data as JSON (safe) -->
+  {{ bookings_over_time|json_script:"bookings-over-time" }}
+  {{ revenue_by_route|json_script:"revenue-by-route" }}
+  {{ popular_routes|json_script:"popular-routes" }}
+  {{ vehicle_utilization|json_script:"vehicle-utilization" }}
+  {{ payment_method_stacked|json_script:"payment-stacked" }}
+  {{ avg_occupancy_today|json_script:"avg-occupancy" }}
+  {{ booking_status_split|json_script:"booking-status-split" }}
+  {% if demographics %}{{ demographics|json_script:"demographics" }}{% endif %}
+  {{ monthly_revenue|json_script:"monthly-revenue" }}
+  
+  <!-- ADD THESE MISSING JSON SCRIPTS -->
+  {{ bookings_per_bus|json_script:"bookings-per-bus" }}
+  {{ available_seats_per_bus|json_script:"available-seats-per-bus" }}
+
+  <script>
+    function getJSON(id){ return JSON.parse(document.getElementById(id).textContent); }
+
+    // Line: Bookings Over Time
+    (function(){
+      const d = getJSON("bookings-over-time");
+      const ctx = document.getElementById("bookingsLine");
+      new Chart(ctx, {
+        type: "line",
+        data: { labels: d.labels, datasets: [{ label: "Bookings", data: d.data, tension: 0.25 }] },
+        options: { responsive: true, maintainAspectRatio: false }
+      });
+    })();
+
+    // Bar: Revenue by Route
+    (function(){
+      const d = getJSON("revenue-by-route");
+      const ctx = document.getElementById("revenueByRoute");
+      new Chart(ctx, {
+        type: "bar",
+        data: { labels: d.labels, datasets: [{ label: "Revenue", data: d.data }] },
+        options: { responsive: true, maintainAspectRatio: false }
+      });
+    })();
+
+    // Donut: Route Popularity
+    (function(){
+      const d = getJSON("popular-routes");
+      const ctx = document.getElementById("routePopularity");
+      new Chart(ctx, {
+        type: "doughnut",
+        data: { labels: d.labels, datasets: [{ label: "Bookings", data: d.data }] },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: "bottom" } } }
+      });
+    })();
+
+    // Horizontal Bar: Vehicle Utilization
+    (function(){
+      const d = getJSON("vehicle-utilization");
+      const ctx = document.getElementById("vehicleUtil");
+      new Chart(ctx, {
+        type: "bar",
+        data: { labels: d.labels, datasets: [{ label: "Trips", data: d.data }] },
+        options: {
+          indexAxis: "y",
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: { x: { beginAtZero: true } }
+        }
+      });
+    })();
+
+    // Bar: Bookings per Bus
+    (function(){
+      const d = getJSON("bookings-per-bus");
+      const ctx = document.getElementById("bookingsPerBusChart");
+      new Chart(ctx, {
+        type: "bar",
+        data: { labels: d.labels, datasets: [{ label: "Bookings", data: d.data, backgroundColor: "rgba(54, 162, 235, 0.7)" }] },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: { y: { beginAtZero: true } }
+        }
+      });
+    })();
+
+    // Bar: Available Seats per Bus
+    (function(){
+      const d = getJSON("available-seats-per-bus");
+      const ctx = document.getElementById("availableSeatsPerBusChart");
+      new Chart(ctx, {
+        type: "bar",
+        data: { labels: d.labels, datasets: [{ label: "Available Seats", data: d.data, backgroundColor: "rgba(75, 192, 192, 0.7)" }] },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: { y: { beginAtZero: true } }
+        }
+      });
+    })();
+
+  </script>
+</body>
+</html>

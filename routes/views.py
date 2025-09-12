@@ -104,3 +104,13 @@ class RouteDeleteView(AdminRequiredMixin, DeleteView):
         obj = self.get_object()
         messages.success(request, f"Route {obj.name} has been deleted successfully!")
         return super().delete(request, *args, **kwargs)
+
+
+
+
+
+
+
+
+
+
